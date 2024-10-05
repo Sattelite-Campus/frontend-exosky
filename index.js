@@ -5,7 +5,7 @@ import { Cache as sky_group } from "three";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { log } from 'three/webgpu';
+import { createConstellationStar } from "./src/constellationStar.js";
 
 // Create the main scene and the second scene
 var scene = new THREE.Scene();
@@ -83,22 +83,22 @@ function createStar(ra, dec, distance, mag, B, V) {
         transparent: true,  // Ensure transparency
         alphaTest: 0.01,  // Minimum alpha level for visibility
         blending: THREE.AdditiveBlending,  // Use additive blending for glowing stars
-        depthTest: true
+        depthTest: true,
     });
     var position = radecToCartesian(ra, dec, distance);
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
 
-    var pointLight = new THREE.PointLight(color, 0.1, 1000);  // Use larger intensity value
-    pointLight.position.copy(position);
+    // var pointLight = new THREE.PointLight(color, 0.1, 1000);  // Use larger intensity value
+    // pointLight.position.copy(position);
 
     var starGroup = new THREE.Group();
     var star = new THREE.Points(geometry, material);
-    starGroup.add(star);      // Add the visual star
-    // if(mag < 4){
-    //     starGroup.add(pointLight);  // Add the light source
-    // }
-
+    starGroup.add(star);
+    if(mag < 5){
+        console.log(mag);
+        createConstellationStar(scene, camera, position.x, position.y, position.z, size);
+    }
     return starGroup;
 }
 
@@ -138,7 +138,6 @@ function loadFloor(){
     scene.add(plane);
 }
 
-
 //switched to direct link
 fetch('Data\\star_data.json', {
     mode: 'no-cors'
@@ -153,7 +152,6 @@ fetch('Data\\star_data.json', {
         });
     })
     .catch(error => console.error('Error loading planet data:', error));
-
 
 loadFloor();
 loadSkySphere();
