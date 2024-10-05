@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Define the file path
-file_path = 'PS_2024.09.28_18.08.25.csv'
+file_path = 'Data/star_data.csv'
 
 # Read the CSV file, skipping the initial comment lines (start after line 6)
 data = pd.read_csv(file_path, comment='#')
@@ -14,15 +14,18 @@ distance = data['sy_dist']
 magnitude = data['sy_bmag']
 
 # Print the extracted data
-print("Star Name:", star_name)
-print("Right Ascension:", right_ascension)
-print("Declination:", declination)
-print("Distance:", distance)
+# print("Star Name:", star_name)
+# print("Right Ascension:", right_ascension)
+# print("Declination:", declination)
+# print("Distance:", distance)
 print("Luminosity:", magnitude)
 
 #create a dictionary with planet names as keys and a list of right ascension and declination as values
 star_list = []
 for i in range(len(star_name)):
+    # check if any of them are nan
+    if pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]) or pd.isnull(magnitude[i]):
+        continue
     temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag' : magnitude[i]}
     star_list.append(temp_dict)
 print(star_list)
