@@ -36,7 +36,7 @@ function radecToCartesian(ra, dec, distance) {
 function createStar(ra, dec, distance, color, mag) {
     const size = 30 * Math.pow(1.35, Math.min(-mag, 0.15));
     var geometry = new THREE.BufferGeometry();
-    var material = new THREE.PointsMaterial({ color: color, size: size });
+    var material = new THREE.PointsMaterial({ color: color, size: mag });
     var position = radecToCartesian(ra, dec, distance);
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
@@ -68,7 +68,7 @@ fetch('Data\\star_data.json', {
         console.log(data);``
         console.log('Loaded planet data:', data);
         data.forEach(planet => {
-            var star = createStar(planet.ra, planet.dec, 1000, 0xffffff, 5);
+            var star = createStar(planet.ra, planet.dec, 1000, 0xffffff, planet.mag);
             scene.add(star);
         });
     })

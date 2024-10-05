@@ -28,7 +28,7 @@ for i in range(len(star_name)):
         continue
     temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag' : magnitude[i]}
     star_list.append(temp_dict)
-print(star_list)
+# print(star_list)
 
 #TODO: Get Luminosity and turn luminosity into star brightness on our star map
 
@@ -36,3 +36,9 @@ print(star_list)
 import json
 with open('star_data.json', 'w') as f:
     json.dump(star_list, f)
+
+#print all magn values in the json file
+with open('star_data.json') as f:
+    data = json.load(f)
+    for star in data:
+        print(star['mag'])
