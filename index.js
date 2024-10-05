@@ -44,9 +44,13 @@ function createStar(ra, dec, distance, color) {
     return new THREE.Points(geometry, material);
 }
 
-fetch('Data\\planet_data.json')
+//switched to direct link
+fetch('https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+hostname,rastr,decstr,ra,dec,sy_dist+from+stellarhosts+where+sy_bmag<6&format=json', {
+    mode: 'no-cors'
+})
     .then(response => response.json())
     .then(data => {
+        console.log(data);
         console.log('Loaded planet data:', data);
         data.forEach(planet => {
             var star = createStar(planet.ra, planet.dec, 1000, 0xffffff);
