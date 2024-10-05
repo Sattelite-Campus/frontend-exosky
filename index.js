@@ -5,6 +5,7 @@ import { Cache as sky_group } from "three";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { createConstellationStar } from "./src/constellationStar.js";
 
 // Create the main scene and the second scene
 var scene = new THREE.Scene();
@@ -63,7 +64,7 @@ function createStar(ra, dec, distance, color, mag) {
         transparent: true,  // Ensure transparency
         alphaTest: 0.01,  // Minimum alpha level for visibility
         blending: THREE.AdditiveBlending,  // Use additive blending for glowing stars
-        depthTest: true
+        depthTest: true,
     });
     var position = radecToCartesian(ra, dec, distance);
 
@@ -134,6 +135,12 @@ fetch('Data\\star_data.json', {
     })
     .catch(error => console.error('Error loading planet data:', error));
 
+//make a random sphere mesh and make it clickable
+var geometry = new THREE.SphereGeometry(10, 32, 32);
+var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+var sphere = new THREE.Mesh(geometry, material);
+sphere.position.set(100, 100, 100);
+scene.add(sphere); // Ensure sphere is added to the scene so raycasting can detect it
 
 loadFloor();
 loadSkySphere();
