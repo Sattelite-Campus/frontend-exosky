@@ -7,8 +7,8 @@ var scene = new THREE.Scene();
 var scene2 = new THREE.Scene();
 
 // Set up the camera
-var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 15000);
-camera.position.set(0, 0, 1000);
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000);
+camera.position.set(0, 0, 100);
 
 // Set up the WebGL renderer
 var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -46,17 +46,16 @@ function createStar(ra, dec, distance, color, mag) {
 }
 
 function loadFloor(){
-    var geometry = new THREE.PlaneGeometry(100000, 100000, 100, 100);
+    var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);  // Circular ground
     var material = new THREE.MeshBasicMaterial({
         color: 0x8B4513,  // Brown color
         side: THREE.DoubleSide,
         transparent: false,
-        opacity: 1,  // Full opacity
+        opacity: 1,
         depthWrite: true
     });
     var plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = Math.PI / 2;
-    plane.position.y = -1200;
+    plane.position.y = -102;
     scene.add(plane);
 }
 
@@ -70,7 +69,7 @@ fetch('Data\\star_data.json', {
         console.log(data);``
         console.log('Loaded planet data:', data);
         data.forEach(planet => {
-            var star = createStar(planet.ra, planet.dec, 10000, 0xffffff, 5);
+            var star = createStar(planet.ra, planet.dec, 1000, 0xffffff, 5);
             scene.add(star);
         });
     })
@@ -79,7 +78,7 @@ fetch('Data\\star_data.json', {
 
 // New Scene (Scene 2)
 renderer.setClearColor(0x222222);  // Different background for scene2
-var cubeGeometry = new THREE.BoxGeometry(100, 100, 100);
+var cubeGeometry = new THREE.BoxGeometry(1000, 1000, 100);
 var cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 cube.position.set(0, 0, 0);
