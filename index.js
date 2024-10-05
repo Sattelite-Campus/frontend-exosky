@@ -29,13 +29,13 @@ var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
 // Add bloom effect
-// var bloomPass = new UnrealBloomPass(
-//     new THREE.Vector2(window.innerWidth, window.innerHeight),
-//     0.5,
-//     5,
-//     0.4
-// );
-// composer.addPass(bloomPass);
+var bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    1.5,  // intensity of bloom
+    100,  // radius for bloom spread
+    0.3   // threshold for bloom effect
+);
+composer.addPass(bloomPass);
 
 renderer.setClearColor(0x000000);  // Set background to black
 
@@ -60,11 +60,12 @@ function createStar(ra, dec, distance, color, mag) {
         color: color,
         size: size,
         map: starTexture,
-        transparent: true,  // Ensure transparency is enabled
-        // alphaTest: 0.1,  // Test for transparency
-        blending: THREE.AdditiveBlending,  // Use additive blending for better effects
+        transparent: true,  // Ensure transparency
+        alphaTest: 0.01,  // Minimum alpha level for visibility
+        blending: THREE.AdditiveBlending,  // Use additive blending for glowing stars
         depthTest: true
-    });    var position = radecToCartesian(ra, dec, distance);
+    });
+    var position = radecToCartesian(ra, dec, distance);
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
 
