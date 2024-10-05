@@ -70,16 +70,16 @@ function createStar(ra, dec, distance, color, mag) {
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
 
-    var pointLight = new THREE.PointLight(color, 0.1, 1000);  // Use larger intensity value
-    pointLight.position.copy(position);
+    // var pointLight = new THREE.PointLight(color, 0.1, 1000);  // Use larger intensity value
+    // pointLight.position.copy(position);
 
     var starGroup = new THREE.Group();
     var star = new THREE.Points(geometry, material);
-    starGroup.add(star);      // Add the visual star
-    // if(mag < 4){
-    //     starGroup.add(pointLight);  // Add the light source
-    // }
-
+    starGroup.add(star);
+    if(mag < 5){
+        console.log(mag);
+        createConstellationStar(scene, camera, position.x, position.y, position.z, size);
+    }
     return starGroup;
 }
 
