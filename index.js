@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { setupSceneChange } from "./src/sceneChange.js";
+import { createControls } from "./src/orbitalControls.js";
 
 // Create the main scene and the second scene
 var scene = new THREE.Scene();
@@ -13,6 +14,10 @@ camera.position.set(0, 0, 1000);
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+// Orbit Controls Setup
+createControls(camera, renderer);
+
 
 // Ambient light
 var ambientLight = new THREE.AmbientLight(0xffffff, 1);
