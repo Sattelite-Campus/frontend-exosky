@@ -12,6 +12,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "@react-three/postprocessing": "^2.16.3",
     "three": "^0.169.0"
   }
 }

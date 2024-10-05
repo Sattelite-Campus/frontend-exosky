@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { setupSceneChange } from "./src/sceneChange.js";
 import { createControls } from "./src/orbitControls.js";
+import {Cache as sky_group} from "three";
 
 // Create the main scene and the second scene
 var scene = new THREE.Scene();
@@ -18,8 +19,8 @@ document.body.appendChild(renderer.domElement);
 createControls(camera, renderer);
 
 // Ambient light
-var ambientLight = new THREE.AmbientLight(0xffffff, 1);
-scene.add(ambientLight);
+// var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+// scene.add(ambientLight);
 
 renderer.setClearColor(0x000000);  // Set background to black
 
@@ -44,7 +45,29 @@ function createStar(ra, dec, distance, color, mag) {
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
 
-    return new THREE.Points(geometry, material);
+    var starGroup = new THREE.Group();
+    var star = new THREE.Points(geometry, material);
+    starGroup.add(star);      // Add the visual star
+
+    return starGroup;
+}
+
+function loadSkySphere() {
+    var skygeo = new THREE.SphereGeometry(1000, 32, 16);
+
+
+    var material = new THREE.MeshPhongMaterial({
+    });
+
+    var sky_sphere = new THREE.Mesh(skygeo, material);
+    sky_sphere.material.side = THREE.BackSide;
+
+    sky_sphere.rotateY(-Math.PI / 2);
+
+    //scene.add(sky_sphere);
+    sky_group.add(sky_sphere);
+
+    return sky_sphere;
 }
 
 function loadFloor(){
@@ -71,14 +94,15 @@ fetch('Data\\star_data.json', {
         console.log(data);``
         console.log('Loaded planet data:', data);
         data.forEach(planet => {
-            var star = createStar(planet.ra, planet.dec, 1000, 0xffffff, planet.mag);
-            scene.add(star);
+            var starGroup = createStar(planet.ra, planet.dec, 1000, 0xffffff, planet.mag);
+            scene.add(starGroup);
         });
     })
     .catch(error => console.error('Error loading planet data:', error));
 
 
 loadFloor();
+scene.add(loadSkySphere());
 
 // Animate and render the active scene
 function animate() {
