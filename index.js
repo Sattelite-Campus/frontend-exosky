@@ -32,11 +32,14 @@ function radecToCartesian(ra, dec, distance) {
     return new THREE.Vector3(x, y, z);
 }
 
+var textureLoader = new THREE.TextureLoader();
+var starTexture = textureLoader.load('whiteCircleTexture.webp');  // Replace with the actual path
+
 // Create a star object
 function createStar(ra, dec, distance, color, mag) {
     const size = 30 * Math.pow(1.35, Math.min(-mag, 0.15));
     var geometry = new THREE.BufferGeometry();
-    var material = new THREE.PointsMaterial({ color: color, size: mag });
+    var material = new THREE.PointsMaterial({ color: color, size: size, map: starTexture, transparent: true });
     var position = radecToCartesian(ra, dec, distance);
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
