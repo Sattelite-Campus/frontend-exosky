@@ -11,7 +11,7 @@ var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHei
 camera.position.set(0, 0, 1000);
 
 // Set up the WebGL renderer
-var renderer = new THREE.WebGLRenderer({ antialias: true });
+var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -22,7 +22,7 @@ createControls(camera, renderer);
 var ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
-renderer.setClearColor(0x000000);  // Set background to black
+renderer.setClearColor(0x000000, 0);  // Set background to transparent // Set background to black
 
 function radecToCartesian(ra, dec, distance) {
     ra = ra / 12 * Math.PI;  // Convert RA to radians
@@ -44,8 +44,17 @@ function createStar(ra, dec, distance, color) {
     return new THREE.Points(geometry, material);
 }
 
+function loadFloor(){
+    var geometry = new THREE.PlaneGeometry(10000, 10000, 100, 100);
+    var material = new THREE.MeshBasicMaterial({ color: 0x8B4513, side: THREE.BackSide, opacity: 1, transparency: false, depthWrite: false});
+    var plane = new THREE.Mesh(geometry, material);
+    plane.rotation.x = Math.PI / 2;
+    plane.position.y = -1000;
+    scene.add(plane);
+}
+
 //switched to direct link
-fetch('https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+hostname,rastr,decstr,ra,dec,sy_dist+from+stellarhosts+where+sy_bmag<6&format=json', {
+fetch('Data\\planet_data.json', {
     mode: 'no-cors'
 })
     .then(response => response.json())
@@ -72,6 +81,7 @@ let activeScene = scene;
 setupSceneChange(scene, scene2, (newScene) => {
     activeScene = newScene;
 });
+loadFloor();
 
 // Animate and render the active scene
 function animate() {
