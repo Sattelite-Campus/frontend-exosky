@@ -119,7 +119,6 @@ function loadFloor(){
     scene.add(plane);
 }
 
-
 //switched to direct link
 fetch('Data\\star_data.json', {
     mode: 'no-cors'

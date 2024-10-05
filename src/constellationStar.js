@@ -6,7 +6,8 @@ export function createConstellationStar(scene, camera, x, y, z, radius) {
     var geometry = new THREE.SphereGeometry(radius + 10, 32, 32);
     var material = new THREE.MeshBasicMaterial({
         color: 0xffff00,
-        opacity: 0.5
+        opacity: 0.1,  // Start with some transparency
+        transparent: true,  // Enable transparency
     });
     var sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(x, y, z);
