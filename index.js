@@ -7,8 +7,8 @@ var scene = new THREE.Scene();
 var scene2 = new THREE.Scene();
 
 // Set up the camera
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000);
-camera.position.set(0, 0, 1000);
+var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 15000);
+camera.position.set(0, 0, 0);
 
 // Set up the WebGL renderer
 var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -46,13 +46,20 @@ function createStar(ra, dec, distance, color, mag) {
 }
 
 function loadFloor(){
-    var geometry = new THREE.PlaneGeometry(10000, 10000, 100, 100);
-    var material = new THREE.MeshBasicMaterial({ color: 0x8B4513, side: THREE.BackSide, opacity: 1, transparency: false, depthWrite: false});
+    var geometry = new THREE.PlaneGeometry(100000, 100000, 100, 100);
+    var material = new THREE.MeshBasicMaterial({
+        color: 0x8B4513,  // Brown color
+        side: THREE.DoubleSide,
+        transparent: false,
+        opacity: 1,  // Full opacity
+        depthWrite: true
+    });
     var plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2;
     plane.position.y = -1000;
     scene.add(plane);
 }
+
 
 //switched to direct link
 fetch('https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+hostname,rastr,decstr,ra,dec,sy_dist+from+stellarhosts+where+sy_bmag<6&format=json', {
@@ -63,7 +70,7 @@ fetch('https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+hostname,
         console.log(data);
         console.log('Loaded planet data:', data);
         data.forEach(planet => {
-            var star = createStar(planet.ra, planet.dec, 1000, 0xffffff);
+            var star = createStar(planet.ra, planet.dec, 10000, 0xffffff);
             scene.add(star);
         });
     })
