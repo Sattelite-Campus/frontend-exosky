@@ -5,6 +5,7 @@ import { Cache as sky_group } from "three";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { log } from 'three/webgpu';
 
 // Create the main scene and the second scene
 var scene = new THREE.Scene();
@@ -52,9 +53,28 @@ var textureLoader = new THREE.TextureLoader();
 var starTexture = textureLoader.load('whiteCircleTexture.webp');  // Replace with the actual path
 starTexture.minFilter = THREE.LinearFilter;
 
+/*
+Mag from 
+15 to -10
+const mag_index = Math.max(0, 15 - (B - V));
+Now, the dimmest, reddest starts are at most 0 with bluest at a value of 25 
+Colour Range
+R(T) = Math.min(1, 0.5 + mag_index / 25 / 2
+G(T) = Math.min(1, 0.1 + mag_index / 25 * 0.9
+B(T) = Math.max(0, ((25 - mag_index) / 25) ^ 2
+Higher the num, the whiter and blueer
+
+new THREE.Color(
+*/
+
 // Create a star object
-function createStar(ra, dec, distance, color, mag) {
+function createStar(ra, dec, distance, mag, B, V) {
     const size = 30 * Math.pow(1.2, Math.min(-Math.pow(mag, .9), 0.3));
+    const mag_index = Math.min(25, Math.max(0, 15 - (B - V)));
+    const r = Math.min(1, 0.5 + mag_index / 25 / 16);
+    const g = Math.min(1, 0.01 + mag_index / 25 / 2);
+    const b = Math.min(1, Math.pow(mag_index / 25, 2));
+    const color = new THREE.Color(r, g, b);
     var geometry = new THREE.BufferGeometry();
     var material = new THREE.PointsMaterial({
         color: color,
@@ -128,7 +148,7 @@ fetch('Data\\star_data.json', {
         console.log(data);``
         console.log('Loaded planet data:', data);
         data.forEach(planet => {
-            var starGroup = createStar(planet.ra, planet.dec, 1000, 0xffffff, planet.mag);
+            var starGroup = createStar(planet.ra, planet.dec, 1000, planet.mag, Math.random() * 40, Math.random() * 25); /* TODO: Replace random with B and V mag vals */
             scene.add(starGroup);
         });
     })
