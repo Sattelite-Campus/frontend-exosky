@@ -8,7 +8,7 @@ var scene2 = new THREE.Scene();
 
 // Set up the camera
 var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 15000);
-camera.position.set(0, 0, 0);
+camera.position.set(0, 0, 1000);
 
 // Set up the WebGL renderer
 var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -56,7 +56,7 @@ function loadFloor(){
     });
     var plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2;
-    plane.position.y = -1000;
+    plane.position.y = -1200;
     scene.add(plane);
 }
 
