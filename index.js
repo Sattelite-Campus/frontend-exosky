@@ -29,13 +29,13 @@ var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
 // Add bloom effect
-var bloomPass = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.5,
-    5,
-    0.4
-);
-composer.addPass(bloomPass);
+// var bloomPass = new UnrealBloomPass(
+//     new THREE.Vector2(window.innerWidth, window.innerHeight),
+//     0.5,
+//     5,
+//     0.4
+// );
+// composer.addPass(bloomPass);
 
 renderer.setClearColor(0x000000);  // Set background to black
 
@@ -48,18 +48,18 @@ function radecToCartesian(ra, dec, distance) {
     return new THREE.Vector3(x, y, z);
 }
 
-// var textureLoader = new THREE.TextureLoader();
-// var starTexture = textureLoader.load('whiteCircleTexture.webp');  // Replace with the actual path
-// starTexture.minFilter = THREE.LinearFilter;
+var textureLoader = new THREE.TextureLoader();
+var starTexture = textureLoader.load('whiteCircleTexture.webp');  // Replace with the actual path
+starTexture.minFilter = THREE.LinearFilter;
 
 // Create a star object
 function createStar(ra, dec, distance, color, mag) {
-    const size = 10 * Math.pow(1.35, Math.min(-mag, 0.15));
+    const size = 30 * Math.pow(1.35, Math.min(-mag, 0.15));
     var geometry = new THREE.BufferGeometry();
     var material = new THREE.PointsMaterial({
         color: color,
         size: size,
-        // map: starTexture,
+        map: starTexture,
         transparent: true,  // Ensure transparency is enabled
         // alphaTest: 0.1,  // Test for transparency
         blending: THREE.AdditiveBlending,  // Use additive blending for better effects
@@ -68,13 +68,15 @@ function createStar(ra, dec, distance, color, mag) {
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
 
-    var pointLight = new THREE.PointLight(color, size*2, 1000);  // Use larger intensity value
+    var pointLight = new THREE.PointLight(color, 0.1, 1000);  // Use larger intensity value
     pointLight.position.copy(position);
 
     var starGroup = new THREE.Group();
     var star = new THREE.Points(geometry, material);
-    // starGroup.add(star);      // Add the visual star
-    starGroup.add(pointLight);  // Add the light source
+    starGroup.add(star);      // Add the visual star
+    // if(mag < 4){
+    //     starGroup.add(pointLight);  // Add the light source
+    // }
 
     return starGroup;
 }
