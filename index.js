@@ -4,7 +4,6 @@ import { createControls } from "./src/orbitControls.js";
 
 // Create the main scene and the second scene
 var scene = new THREE.Scene();
-var scene2 = new THREE.Scene();
 
 // Set up the camera
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000);
@@ -76,23 +75,12 @@ fetch('Data\\star_data.json', {
     .catch(error => console.error('Error loading planet data:', error));
 
 
-// New Scene (Scene 2)
-renderer.setClearColor(0x222222);  // Different background for scene2
-var cubeGeometry = new THREE.BoxGeometry(1000, 1000, 100);
-var cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-cube.position.set(0, 0, 0);
-scene2.add(cube);
-
-let activeScene = scene;
-setupSceneChange(scene, scene2, (newScene) => {
-    activeScene = newScene;
-});
 loadFloor();
 
 // Animate and render the active scene
 function animate() {
     requestAnimationFrame(animate);
-    renderer.render(activeScene, camera);
+    renderer.render(scene, camera);
 }
+
 animate();
