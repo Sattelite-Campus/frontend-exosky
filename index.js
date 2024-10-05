@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { setupSceneChange } from "./src/sceneChange.js";
 
 // Create the main scene and the second scene
 var scene = new THREE.Scene();
@@ -18,6 +19,11 @@ var ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 renderer.setClearColor(0x000000);  // Set background to black
+
+let activeScene = scene;
+setupSceneChange(scene, scene2, (newScene) => {
+    activeScene = newScene;
+});
 
 // Animate and render the active scene
 function animate() {
