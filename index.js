@@ -31,8 +31,8 @@ composer.addPass(new RenderPass(scene, camera));
 // Add bloom effect
 var bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1.5,  // intensity of bloom
-    100,  // radius for bloom spread
+    0.8,  // intensity of bloom
+    1.3,  // radius for bloom spread
     0.3   // threshold for bloom effect
 );
 composer.addPass(bloomPass);
@@ -54,7 +54,7 @@ starTexture.minFilter = THREE.LinearFilter;
 
 // Create a star object
 function createStar(ra, dec, distance, color, mag) {
-    const size = 30 * Math.pow(1.35, Math.min(-mag, 0.15));
+    const size = 30 * Math.pow(1.2, Math.min(-Math.pow(mag, .9), 0.3));
     var geometry = new THREE.BufferGeometry();
     var material = new THREE.PointsMaterial({
         color: color,
@@ -87,7 +87,7 @@ function loadSkySphere() {
     var material = new THREE.MeshPhongMaterial({
         side: THREE.BackSide,  // Render the inside of the sphere
         color: 0x111111,       // Dark color to simulate a night sky
-        shininess: 100,        // Increase shininess for reflective highlights
+        shininess: 0,        // Increase shininess for reflective highlights
         specular: 0x555555,    // Specular highlights from light sources
         emissive: 0x000000,    // No self-illumination
         depthWrite: false      // Prevent the sphere from occluding stars
