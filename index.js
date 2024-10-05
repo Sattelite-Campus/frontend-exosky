@@ -22,8 +22,8 @@ document.body.appendChild(renderer.domElement);
 createControls(camera, renderer);
 
 // Ambient light
-var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-scene.add(ambientLight);
+// var ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+// scene.add(ambientLight);
 
 var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
@@ -32,7 +32,7 @@ composer.addPass(new RenderPass(scene, camera));
 var bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
     0.5,
-    10,
+    5,
     0.4
 );
 composer.addPass(bloomPass);
@@ -48,32 +48,32 @@ function radecToCartesian(ra, dec, distance) {
     return new THREE.Vector3(x, y, z);
 }
 
-var textureLoader = new THREE.TextureLoader();
-var starTexture = textureLoader.load('whiteCircleTexture.webp');  // Replace with the actual path
-starTexture.minFilter = THREE.LinearFilter;
+// var textureLoader = new THREE.TextureLoader();
+// var starTexture = textureLoader.load('whiteCircleTexture.webp');  // Replace with the actual path
+// starTexture.minFilter = THREE.LinearFilter;
 
 // Create a star object
 function createStar(ra, dec, distance, color, mag) {
-    const size = 30 * Math.pow(1.35, Math.min(-mag, 0.15));
+    const size = 10 * Math.pow(1.35, Math.min(-mag, 0.15));
     var geometry = new THREE.BufferGeometry();
     var material = new THREE.PointsMaterial({
         color: color,
         size: size,
-        map: starTexture,
+        // map: starTexture,
         transparent: true,  // Ensure transparency is enabled
-        alphaTest: 0.5,  // Test for transparency
+        // alphaTest: 0.1,  // Test for transparency
         blending: THREE.AdditiveBlending,  // Use additive blending for better effects
         depthTest: true
     });    var position = radecToCartesian(ra, dec, distance);
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute([position.x, position.y, position.z], 3));
 
-    var pointLight = new THREE.PointLight(color, size*50, 3000);  // Use larger intensity value
+    var pointLight = new THREE.PointLight(color, size*2, 1000);  // Use larger intensity value
     pointLight.position.copy(position);
 
     var starGroup = new THREE.Group();
     var star = new THREE.Points(geometry, material);
-    starGroup.add(star);      // Add the visual star
+    // starGroup.add(star);      // Add the visual star
     starGroup.add(pointLight);  // Add the light source
 
     return starGroup;
@@ -81,10 +81,13 @@ function createStar(ra, dec, distance, color, mag) {
 
 function loadSkySphere() {
     var skygeo = new THREE.SphereGeometry(1600, 32, 16);  // Increased size to ensure it's behind stars
-    var material = new THREE.MeshBasicMaterial({
-        side: THREE.BackSide,  // Ensure it's only visible from the inside
-        color: 0x000000,       // Black color to match the background
-        depthWrite: false      // Prevent it from blocking stars
+    var material = new THREE.MeshPhongMaterial({
+        side: THREE.BackSide,  // Render the inside of the sphere
+        color: 0x111111,       // Dark color to simulate a night sky
+        shininess: 100,        // Increase shininess for reflective highlights
+        specular: 0x555555,    // Specular highlights from light sources
+        emissive: 0x000000,    // No self-illumination
+        depthWrite: false      // Prevent the sphere from occluding stars
     });
 
     var sky_sphere = new THREE.Mesh(skygeo, material);
@@ -130,7 +133,7 @@ fetch('Data\\star_data.json', {
 
 
 loadFloor();
-
+loadSkySphere();
 // Animate and render the active scene
 function animate() {
     requestAnimationFrame(animate);
