@@ -192,41 +192,26 @@ export function renderPlanet (filePath) {
     var planetDistances = {};
 
     function loadFloor() {
-<<<<<<< HEAD
         // Create a large sphere to act as a planet
-        var planetRadius = 9950;
-        var geometry = new THREE.SphereGeometry(planetRadius, 64, 64); // Replace CylinderGeometry with SphereGeometry
-=======
-        //fetch planet data
-        fetch('Data\\planet_data.json', {mode: 'no-cors'})
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(planet => {
-                    //name : distance pair
-                    planetDistances[planet.name] = [planet.ra, planet.dec];
-                });
-                console.log(planetDistances);
-            })
-            .catch(error => console.error('Error loading planet data:', error));
-
-        var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);
->>>>>>> d4c4f6e2072142972f9f21d9f20d137c2b361508
+        const planetRadius = 9950;
+        const geometry = new THREE.SphereGeometry(planetRadius, 64, 64);
     
         // Load texture image for the planet's surface
-        var texture = new THREE.TextureLoader().load('../Textures/Gaseous2.png'); // Replace with your image path
+        const texture = new THREE.TextureLoader().load('../Textures/Gaseous1.png');
     
-        // Create a material using the loaded texture, ensuring no lighting interaction
-        var material = new THREE.MeshBasicMaterial({
-            map: texture,
-            side: THREE.FrontSide,  // Render only the outside of the sphere
-            transparent: false,
-            opacity: 1,
-            depthWrite: true,
-            depthTest: true
+        // Use MeshBasicMaterial to ensure no lighting interaction
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,            // Use the loaded texture
+            side: THREE.FrontSide,    // Render only the outside of the sphere
+            transparent: false,       // No transparency needed
+            opacity: 1,               // Full opacity
+            depthWrite: true,         // Correct depth layering
+            depthTest: true,          // Enable z-order testing
+            color: new THREE.Color(0xffffff)  // Set color to full white to preserve texture colors
         });
     
         // Create the planet mesh using the sphere geometry and material
-        var planet = new THREE.Mesh(geometry, material);
+        const planet = new THREE.Mesh(geometry, material);
         planet.position.set(0, -planetRadius - 50, 0);  // Lower the sphere so camera is on its surface
         planet.name = "floor";  // Keep the name as "floor" for compatibility
         scene.add(planet);
@@ -234,7 +219,17 @@ export function renderPlanet (filePath) {
         // Adjust the camera position to simulate standing on the surface of the planet
         camera.position.set(0, 0, 100);  // Place the camera on the surface of the sphere along the Z-axis
         camera.lookAt(planet.position);  // Make the camera look towards the center of the sphere
+    
+        // Adjust renderer settings to prevent overexposure or bloom
+        if (renderer) {
+            renderer.toneMapping = THREE.NoToneMapping;  // Disable tone mapping to prevent unintended glow
+            renderer.toneMappingExposure = 1.0;          // Set default exposure value
+            renderer.gammaFactor = 2.2;                  // Set standard gamma for correct color perception
+            renderer.gammaOutput = true;                 // Ensure gamma correction is applied to final output
+        }
     }
+    
+    
     
     
 
