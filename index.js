@@ -48,13 +48,20 @@ starTexture.minFilter = THREE.LinearFilter;
 
 var starPositions = [];
 var starSizes = [];  // Array for dynamically calculated sizes
+let starColors = [];
 
 // Create a star object and store positions and sizes
-function createStar(ra, dec, distance, mag) {
-    const size = 30 * Math.pow(1.2, Math.min(-Math.pow(mag, .9), 0.3)); // Dynamic size calculation
+function createStar(ra, dec, distance, lum, mag_b, mag_v) {
+    const size = 30 * Math.pow(1.2, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
     var position = radecToCartesian(ra, dec, distance);
     starPositions.push(position.x, position.y, position.z);
     starSizes.push(size);
+
+    const mag_index = Math.min(25, Math.max(0, 15 - (mag_b - mag_v)));
+    const r = Math.min(1, 0.5 + mag_index / 25 / 16);
+    const g = Math.min(1, 0.01 + mag_index / 25 / 2);
+    const b = Math.min(1, Math.pow(mag_index / 25, 2));
+    starColors.push(r, g, b);
 }
 
 var vertexShader = `
@@ -76,6 +83,7 @@ var fragmentShader = `
 // Create the geometry for stars
 var starGeometry = new THREE.BufferGeometry();
 var starMaterial = new THREE.ShaderMaterial({
+    color: new THREE.Float32BufferAttribute(starColors, 3),
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
     uniforms: {
@@ -121,7 +129,7 @@ fetch('Data\\star_data.json', {
     .then(response => response.json())
     .then(data => {
         data.forEach(planet => {
-            createStar(planet.ra, planet.dec, 1000, planet.mag);
+            createStar(planet.ra, planet.dec, 1000, planet.lum, planet.mag_b, planet.mag_v);
         });
 
         // Convert starPositions and starSizes to float32 arr

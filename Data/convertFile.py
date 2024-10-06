@@ -14,6 +14,7 @@ distance = data['sy_dist']
 solar_mass = data['st_mass']
 magnitude_b = data['sy_bmag']
 magnitude_v = data['sy_vmag']
+luminosity = data['st_lum']
 
 
 # Print the extracted data
@@ -29,7 +30,7 @@ for i in range(len(star_name)):
     # check if any of them are nan
     if pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]) or pd.isnull(magnitude_b[i]):
         continue
-    temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag_b' : magnitude_b[i], 'mass' : solar_mass[i]}
+    temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag_b' : magnitude_b[i], 'lum' : luminosity[i], 'mass' : solar_mass[i]}
     star_list.append(temp_dict)
 # print(star_list)
 
