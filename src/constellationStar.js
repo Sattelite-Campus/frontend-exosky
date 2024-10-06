@@ -1,5 +1,5 @@
 import * as THREE from "three";
-
+import { brightnessSlider } from "./controlRendering";
 let const_stars = [];
 let new_const_lines = [];
 let new_const_stars = [];
@@ -45,17 +45,15 @@ export function onLeftClick(event, camera, drawLineBetweenStars) {
         const length = new_const_stars.length;
         new_const_stars[length - 1].material.color.setRGB(1,1,0); // Change color of most recent halo to yellow
         if (new_const_stars.length >= 2) { // If there are more than 2 stars selected
-            console.log("What");
-            
             new_const_stars[length - 2].material.color.setRGB(0,1,0); // Turn the previous yellow halo green
             drawLineBetweenStars(
                 new_const_stars[length - 1].position, 
                 new_const_stars[length - 2].position, 
                 new THREE.LineBasicMaterial({
                     color: 0xFFFFFF,
-                    opacity: 0.5,
+                    opacity: 1,
                     transparent: true,
-                    linewidth: 2
+                    linewidth: brightnessSlider.value
                 }),
                 new_const_lines
             );

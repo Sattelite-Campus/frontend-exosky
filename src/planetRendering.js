@@ -10,6 +10,7 @@ import * as ConstMaker from "./constellationStar.js";
 import * as Buttons from './controlRendering.js';
 import { takeScreenshot } from "./screenshotHandling.js";
 import {screenshotButton} from "./controlRendering.js";
+import * as starDetails from './starDetails.js';
 
 export function renderPlanet (filePath) {
 
@@ -70,6 +71,7 @@ export function renderPlanet (filePath) {
     var starVertices = [];  // Store positions for constellation creation
     var constellationCenters = [];  // Track constellation centers
     let starColors = [];
+    let starDetails = [];
 
     function createStar(ra, dec, mag_b, mag_v, st_temp, st_mass, st_lum) {
         // Dynamic size calculation based on magnitudes
@@ -102,6 +104,7 @@ export function renderPlanet (filePath) {
     
         // Push the computed color to the starColors array
         starColors.push(r, g, b);
+        starDetails.push(st_mass, st_temp, mag_b, mag_v, st_lum);
     }
     
     // Function to compute RGB from blackbody temperature
@@ -203,8 +206,8 @@ export function renderPlanet (filePath) {
         scene.add(plane);
     }
 
-function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
-    var lineMaterial = new THREE.LineBasicMaterial({
+    function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
+        var lineMaterial = new THREE.LineBasicMaterial({
             color: 0x777777,
             opacity: 0.5,
             transparent: true,
@@ -276,6 +279,8 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     }
 
     var stars;
+    var brightStars = [];
+    var detailedStars = [];
 
     fetch(filePath, {mode: 'no-cors'})
         .then(response => response.json())
@@ -284,9 +289,16 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
                 createStar(star.ra, star.dec, star.mag_b, star.mag_v, star.st_temp, star.st_mass, star.st_lum);
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
+                    brightStars.push({
+                        "name" : star.name, 
+                        "pos": pos, 
+                        "mag_b": star.mag_b, 
+                        "mag_v": star.mag_v, 
+                        "temp": star.temp, 
+                        "lum": star.lum
+                    });
                     ConstMaker.createConstellationStar(scene, pos.x, pos.y, pos.z, 20);
                 }
-
             });
             starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
             starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
@@ -296,6 +308,9 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
                 scene.add(stars);
             }
             drawDynamicConstellations(starVertices);
+            starDetails.compileStarDetails(brightStars).forEach(mesh => scene.add(mesh));
+            
+            
         })
         .catch(error => console.error('Error loading planet data:', error));
 
@@ -405,11 +420,13 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     // Add event listener for window resize
     window.addEventListener('resize', onWindowResize, false);
 
+    window.addEventListener('mousemove', (event) => starDetails.showDetails(event, camera));
+
     animate();
 
     Buttons.screenshotButton.addEventListener('click', () => {
         if(screenshotButton.classList.contains('active')) {
             takeScreenshot(renderer);
         }
-    })
+    });
 }
