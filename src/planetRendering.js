@@ -300,12 +300,13 @@ export function renderPlanet (filePath) {
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
                     brightStars.push({
-                        "name" : star.name, 
+                        "name" : star.host_name, 
+                        "dist" : star.sy_dist,
                         "pos": pos, 
                         "mag_b": star.mag_b, 
                         "mag_v": star.mag_v, 
-                        "temp": star.temp, 
-                        "lum": star.lum
+                        "temp": star.st_temp, 
+                        "lum": star.st_lum
                     });
                 }
             });
