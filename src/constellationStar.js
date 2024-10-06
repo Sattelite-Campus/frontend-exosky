@@ -1,29 +1,25 @@
 import * as THREE from "three";
 
-
 export function createConstellationStar(scene, camera, x, y, z, radius) {
-    // Create the point geometry with a single vertex at the desired position
-    var geometry = new THREE.BufferGeometry();
-    var position = new Float32Array([x, y, z]);
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, radius*3));
 
-    // Create a PointsMaterial for rendering the point (adjust size for visibility)
-    var material = new THREE.PointsMaterial({
+    var geometry = new THREE.SphereGeometry(radius+5, 32, 32);  // Creates a sphere with the given radius
+
+    var material = new THREE.MeshBasicMaterial({
         color: 0xffff00,
-        size: radius,   // The size of the point (radius can control how large it looks)
         transparent: true,
-        opacity: 0.5,   // Transparency for the point
+        opacity: 0.5,  // Transparency for the sphere
+        depthWrite: false  // Disable depth write so the sphere is always rendered on top
     });
 
-    // Create the point object using Points
-    var point = new THREE.Points(geometry, material);
-    scene.add(point);  // Add the point to the scene
+    var sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(x, y, z);  // Set the position of the sphere
+    scene.add(sphere);  // Add the sphere to the scene
 
     // Raycaster and mouse for detecting clicks
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
 
-    // Event listener for mouse clicks
+    // event listener for mouse clicks
     window.addEventListener('click', onClick, false);
 
     function onClick(event) {
@@ -39,9 +35,12 @@ export function createConstellationStar(scene, camera, x, y, z, radius) {
 
         if (intersects.length > 0) {
             // Check if the clicked object is the sphere
-            if (intersects[0].object === point) {
+            if (intersects[0].object === sphere) {
                 console.log('Sphere clicked!');
-                point.material.color.set(0xff0000); // Change color to red when clicked
+                sphere.material.color.set(0xff0000); // Change color to red when clicked
+            }
+            else {
+                console.log('Sphere not clicked!');
             }
         }
     }

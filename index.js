@@ -4,6 +4,7 @@ import { createControls } from "./src/orbitControls.js";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import {createConstellationStar} from "./src/constellationStar.js";
 
 // Create the main scene
 var scene = new THREE.Scene();
@@ -25,8 +26,8 @@ var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 var bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.8,   // intensity of bloom
-    1.3, // radius for bloom spread
+    0.7,   // intensity of bloom
+    1.2, // radius for bloom spread
     0.3  // threshold for bloom effect
 );
 composer.addPass(bloomPass);
@@ -52,9 +53,13 @@ var starSizes = [];  // Array for dynamically calculated sizes
 // Create a star object and store positions and sizes
 function createStar(ra, dec, distance, mag) {
     const size = 30 * Math.pow(1.2, Math.min(-Math.pow(mag, .9), 0.3)); // Dynamic size calculation
-    var position = radecToCartesian(ra, dec, distance);
+    var position = radecToCartesian(ra, dec, 1000);
     starPositions.push(position.x, position.y, position.z);
     starSizes.push(size);
+    // if(size > 20){
+    //     console.log(size);
+    //     createConstellationStar(scene, camera, position.x, position.y, position.z, 10);
+    // }
 }
 
 var vertexShader = `
@@ -91,7 +96,7 @@ function loadSkySphere() {
     var material = new THREE.MeshPhongMaterial({
         side: THREE.BackSide,
         color: 0x111111,
-        shininess: 0,
+        shininess: 50,
         specular: 0x555555,
         emissive: 0x000000,
         depthWrite: false
@@ -135,7 +140,7 @@ fetch('Data\\star_data.json', {
     .catch(error => console.error('Error loading planet data:', error));
 
 loadFloor();
-loadSkySphere();
+// loadSkySphere();
 
 function animate() {
     requestAnimationFrame(animate);
