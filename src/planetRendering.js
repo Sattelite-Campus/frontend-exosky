@@ -336,6 +336,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
 
     Buttons.toggleButton.addEventListener('click', () => {
+        resetRotation();
         stopRotation();
         if (!constellation) {
             constellation = true;
@@ -378,15 +379,19 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         }
     });
 
-    Buttons.stopButton.addEventListener('click', stopRotation);
+    Buttons.resetButton.addEventListener('click', resetRotation);
 
-    function stopRotation() {
-        rotationSpeed = 0;
-
+    function resetRotation() {
         stars?.rotateOnAxis(rotationAxis, -total_rotation);
         ConstMaker.getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, -total_rotation));
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, -total_rotation));
         total_rotation = 0;
+    }
+
+    Buttons.stopButton.addEventListener('click', stopRotation);
+
+    function stopRotation() {
+        rotationSpeed = 0;
     }
 
     function onWindowResize() {
@@ -401,7 +406,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
     animate();
 
-    screenshotButton.addEventListener('click', () => {
+    Buttons.screenshotButton.addEventListener('click', () => {
         if(screenshotButton.classList.contains('active')) {
             takeScreenshot(renderer);
         }

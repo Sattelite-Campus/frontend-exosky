@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import * as Buttons from "./controlRendering.js";
 
 let const_stars = [];
 let new_const_lines = [];
