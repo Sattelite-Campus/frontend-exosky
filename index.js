@@ -25,7 +25,7 @@ var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 var bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1,   // intensity of bloom
+    0.8,   // intensity of bloom
     1.3, // radius for bloom spread
     0.3  // threshold for bloom effect
 );
