@@ -196,11 +196,11 @@ fetch('Data\\star_data2.json', { mode: 'no-cors' })
     .then(response => response.json())
     .then(data => {
         data.forEach(planet => {
-            createStar(planet.ra, planet.dec, 1000, planet.lum, planet.mag_b, planet.mag_v);
+            createStar(planet.ra, planet.dec, planet.mag_b, planet.mag_v);
         });
         starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
         starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
-        // starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));  // Pass color data
+        starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));  // Pass color data
         var stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
 
