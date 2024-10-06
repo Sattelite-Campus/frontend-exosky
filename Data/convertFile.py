@@ -28,9 +28,9 @@ luminosity = data['st_lum']
 star_list = []
 for i in range(len(star_name)):
     # check if any of them are nan
-    if pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]) or pd.isnull(magnitude_b[i]):
+    if pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]) or pd.isnull(magnitude_b[i]) or pd.isnull(solar_mass[i]):
         continue
-    temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag_b' : magnitude_b[i], 'lum' : luminosity[i], 'mass' : solar_mass[i]}
+    temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag_b' : magnitude_b[i], 'mass' : solar_mass[i]}
     star_list.append(temp_dict)
 # print(star_list)
 
@@ -38,9 +38,3 @@ for i in range(len(star_name)):
 import json
 with open('star_data.json', 'w') as f:
     json.dump(star_list, f)
-
-#print all magn values in the json file
-with open('star_data.json') as f:
-    data = json.load(f)
-    for star in data:
-        print(star['mag'])

@@ -192,7 +192,7 @@ function drawLineBetweenStars(star1, star2, material) {
     scene.add(line);
 }
 
-fetch('Data\\star_data.json', { mode: 'no-cors' })
+fetch('Data\\star_data2.json', { mode: 'no-cors' })
     .then(response => response.json())
     .then(data => {
         data.forEach(planet => {
@@ -200,6 +200,7 @@ fetch('Data\\star_data.json', { mode: 'no-cors' })
         });
         starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
         starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
+        // starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));  // Pass color data
         var stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
 
@@ -209,7 +210,7 @@ fetch('Data\\star_data.json', { mode: 'no-cors' })
     .catch(error => console.error('Error loading planet data:', error));
 
 loadFloor();
-// loadSkySphere();
+loadSkySphere();
 
 function animate() {
     requestAnimationFrame(animate);
