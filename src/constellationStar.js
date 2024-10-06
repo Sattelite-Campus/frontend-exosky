@@ -5,7 +5,7 @@ export function createConstellationStar(scene, camera, x, y, z, radius) {
     // Create the point geometry with a single vertex at the desired position
     var geometry = new THREE.BufferGeometry();
     var position = new Float32Array([x, y, z]);
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, radius*3));
 
     // Create a PointsMaterial for rendering the point (adjust size for visibility)
     var material = new THREE.PointsMaterial({
