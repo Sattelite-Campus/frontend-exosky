@@ -6,5 +6,5 @@ document.addEventListener("DOMContentLoaded", () => {
     setupButtons();  // Initialize the buttons
 
     // You can also call the rendering function here
-    renderPlanet("Data\\star_data_real.json");
+    renderPlanet("Data\\star_data2.json");
 });
