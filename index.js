@@ -27,11 +27,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 renderPlanet("Data\\star_data2.json");
-// exitButton();
-
-//event listeners for UI buttons
-
-//<button id="start">Start</button>
-//     <button id="stop">Stop</button>
-//     <button id="reset">Reset</button>
-//     <button id="clmode">Toggle</button>
