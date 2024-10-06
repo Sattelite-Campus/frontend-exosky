@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 // import { setupSceneChange } from "./src/sceneChange.js";
-import {createControls} from "./orbitControls.js";
+import { createControls } from "./orbitControls.js";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 
-// import {createConstellationStar} from "./src/constellationStar.js";
+import { createConstellationStar, buildConst } from "./constellationStar.js";
 
 export function renderPlanet (filePath) {
 
@@ -203,13 +203,28 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         scene.add(line);
     }
 
+    function drawLineBetweenStars(star1, star2, material, list_array) {
+        var lineGeometry = new THREE.BufferGeometry();
+        const lineVertices = new Float32Array([star1.x, star1.y, star1.z, star2.x, star2.y, star2.z]);
+        lineGeometry.setAttribute('position', new THREE.BufferAttribute(lineVertices, 3));
+        var line = new THREE.Line(lineGeometry, material);
+        allLines.push(line);
+        scene.add(line);
+        list_array.push(line)
+    }
+
     var stars;
 
     fetch(filePath, {mode: 'no-cors'})
         .then(response => response.json())
         .then(data => {
-            data.forEach(planet => {
-                createStar(planet.ra, planet.dec, planet.mag_b, planet.mag_v);
+            data.forEach(star => {
+                createStar(star.ra, star.dec, star.mag_b, star.mag_v);
+                if (star.mag_b + star.mag_v < 13) {
+                    const pos = radecToCartesian(star.ra, star.dec, 1000);
+                    createConstellationStar(scene, camera, pos.x, pos.y, pos.z, 20);
+                }
+
             });
             starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
             starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
@@ -231,8 +246,8 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
     function animate() {
         requestAnimationFrame(animate);
-        stars.rotateOnAxis(rotationAxis, rotationSpeed);
-        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+        // stars.rotateOnAxis(rotationAxis, rotationSpeed);
+        // allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
 
         // Orbit the floor around the origin
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
@@ -240,6 +255,6 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
         composer.render();
     }
-
+    buildConst(scene, camera, drawLineBetweenStars);
     animate();
 }
