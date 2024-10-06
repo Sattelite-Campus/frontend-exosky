@@ -192,11 +192,6 @@ export function renderPlanet (filePath) {
     var planetDistances = {};
 
     function loadFloor() {
-<<<<<<< HEAD
-        // Create a large sphere to act as a planet
-        var planetRadius = 9950;
-        var geometry = new THREE.SphereGeometry(planetRadius, 64, 64); // Replace CylinderGeometry with SphereGeometry
-=======
         //fetch planet data
         fetch('Data\\planet_data.json', {mode: 'no-cors'})
             .then(response => response.json())
@@ -210,7 +205,6 @@ export function renderPlanet (filePath) {
             .catch(error => console.error('Error loading planet data:', error));
 
         var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);
->>>>>>> d4c4f6e2072142972f9f21d9f20d137c2b361508
     
         // Load texture image for the planet's surface
         var texture = new THREE.TextureLoader().load('../Textures/Gaseous2.png'); // Replace with your image path
