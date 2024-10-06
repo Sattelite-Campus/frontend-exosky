@@ -35,7 +35,7 @@ export function renderPlanet (filePath) {
     composer.addPass(new RenderPass(scene, camera));
     var bloomPass = new UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        3,   // intensity of bloom
+        2,   // intensity of bloom
         1.3, // radius for bloom spread
         0.5  // threshold for bloom effect
     );
@@ -64,31 +64,71 @@ export function renderPlanet (filePath) {
     var constellationCenters = [];  // Track constellation centers
     let starColors = [];
 
-    function createStar(ra, dec, mag_b, mag_v) {
-        const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
+    function createStar(ra, dec, mag_b, mag_v, st_temp, st_mass, st_lum) {
+        // Dynamic size calculation based on magnitudes
+        const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), 0.9), 0.3)); // Luminosity ranges from -10 to 20
         var position = radecToCartesian(ra, dec, 1000);
         starPositions.push(position.x, position.y, position.z);
         starSizes.push(size);
-        if((mag_b+mag_v)<16.5) {
+        if ((mag_b + mag_v) < 16.5) {
             starVertices.push(position);
         }
-
-        // Configurable values
-        const min_offset = 2; // A value to raise the smallest B-V values above 0
-        const max = 2; // The typical largest mag index you'd get, following the operations below
-        // If values are still outside the range 0 - max, a clamp will reduce them to within these values
-
-        // Typically, mag_b and mag_v are values between 0 - 40, while their difference (mag_b - mag)v) is around -15 - 10
-        // The differences I saw, however, were typically around -2 to 0 
-        // Following these operations, the coolest stars have mag_index 0, and hottests are at 2
-        const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
-
-        // The RGB operations that follow map the mag_index values (0 - max) evenly onto a color distribution ranging from dark red and light blue
-        const r = Math.min(1, 0.8 * (0.5 - mag_index / max / 3.5));
-        const g = Math.min(1, 0.6 * (0.01 + mag_index / max / 3));
-        const b = Math.min(1, Math.pow(mag_index / max, 4));
+    
+        // Color assignment based on temperature or magnitude indices
+        let r, g, b;
+    
+        // If the temperature is valid, compute the RGB color using blackbody radiation principles
+        if (st_temp > 0) {
+            console.log("VALID RGB CALC");
+            [r, g, b] = getRGBfromTemperature(st_temp);
+        } else {
+            // Default behavior using magnitude indices when temperature is not available
+            const min_offset = 2; // A value to raise the smallest B-V values above 0
+            const max = 2; // The typical largest mag index you'd get, following the operations below
+            const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
+    
+            // The RGB operations map the mag_index values (0 - max) evenly onto a color distribution ranging from dark red to light blue
+            r = Math.min(1, 0.8 * (0.5 - mag_index / max / 3.5));
+            g = Math.min(1, 0.6 * (0.01 + mag_index / max / 3));
+            b = Math.min(1, Math.pow(mag_index / max, 4));
+        }
+    
+        // Push the computed color to the starColors array
         starColors.push(r, g, b);
     }
+    
+    // Function to compute RGB from blackbody temperature
+    function getRGBfromTemperature(temp) {
+        // Define constants
+        const h = 6.626e-34; // Planck's constant (J·s)
+        const c = 3e8; // Speed of light (m/s)
+        const k = 1.38e-23; // Boltzmann's constant (J/K)
+    
+        // Sampled wavelengths for RGB components (in nanometers)
+        const wavelengths = [440, 550, 675]; // Blue, Green, Red respectively
+        const rgb = [0, 0, 0];
+    
+        // Calculate intensity for each wavelength
+        wavelengths.forEach((lambda, i) => {
+            lambda *= 1e-9; // Convert nm to meters
+            const intensity = (2 * h * c ** 2) / (lambda ** 5 * (Math.exp((h * c) / (lambda * k * temp)) - 1));
+            rgb[i] = intensity;
+        });
+    
+        // Normalize the RGB values
+        const maxVal = Math.max(...rgb);
+        if (maxVal > 0) {
+            rgb[0] /= maxVal; // Normalize Red
+            rgb[1] /= maxVal; // Normalize Green
+            rgb[2] /= maxVal; // Normalize Blue
+        }
+    
+        // Apply gamma correction to simulate human color perception
+        const gammaCorrect = (x) => (x <= 0.0031308) ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+    
+        return rgb.map(gammaCorrect);
+    }
+    
 
     var vertexShader = `
     attribute float size;
@@ -234,7 +274,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         .then(response => response.json())
         .then(data => {
             data.forEach(star => {
-                createStar(star.ra, star.dec, star.mag_b, star.mag_v);
+                createStar(star.ra, star.dec, star.mag_b, star.mag_v, star.st_temp, star.st_mass, star.st_lum);
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
                     createConstellationStar(scene, pos.x, pos.y, pos.z, 30);
