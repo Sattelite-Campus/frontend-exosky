@@ -150,7 +150,7 @@ export function renderPlanet (filePath) {
         gl_Position = projectionMatrix * mvPosition;
     }
 `;
-
+(ra * dec) % 148
     var fragmentShader = `
     uniform sampler2D pointTexture;
     varying vec3 vColor;
@@ -202,6 +202,20 @@ export function renderPlanet (filePath) {
         plane.position.set(0, -102, 0);  // Set X and Z to 0 for centering
         plane.name = "floor";
         scene.add(plane);
+    }
+
+    function renderAtmosphere() {
+        var geometry = new THREE.CylinderGeometry(995, 995, 100, 64);
+        var material = new THREE.MeshBasicMaterial({
+            color: new THREE.color(1, 1, 1),
+            transparent: true,
+            opacity: 0.1
+        });
+        const atmos = new THREE.Mesh(geometry, material);
+        atmos.position.set(0, 0, 50)
+        atmos.position.set(0, -102, 0);  // Set X and Z to 0 for centering
+        atmos.name = "Atmosphere";
+        return atmos;
     }
 
     function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
@@ -314,6 +328,7 @@ export function renderPlanet (filePath) {
 
     loadFloor();
     loadSkySphere();
+    scene.add(loadSkySphere());
 
     var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
     const maxRotationSpeed = 0.001
@@ -417,7 +432,7 @@ export function renderPlanet (filePath) {
     // Add event listener for window resize
     window.addEventListener('resize', onWindowResize, false);
 
-    window.addEventListener('mousemove', (event) => starDetails.showDetails(event, camera));
+    // window.addEventListener('mousemove', (event) => starDetails.showDetails(event, camera));
 
     animate();
 
