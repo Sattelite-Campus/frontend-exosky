@@ -201,6 +201,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     }
 
     var allLines = [];
+
     function drawLineBetweenStars(star1, star2, material) {
         var lineGeometry = new THREE.BufferGeometry();
         const lineVertices = new Float32Array([star1.x, star1.y, star1.z, star2.x, star2.y, star2.z]);

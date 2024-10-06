@@ -10,28 +10,28 @@ const planetName = pathSegments[1];
 
 console.log(planetName);
 
-
+var currentPlanet;
 // //fetch planet name
-// fetch ("", {
-//     method: "GET",
-//     headers: {
-//         "Content-Type": "application/json"
-//
-//     }
-// })
-//
-// //fetch planet data from planet name
-// fetch ("", {
-//     method: "GET",
-//     headers: {
-//         "Content-Type": "application/json"
-//
-//     }
-// })
+fetch("/render?index=" + planetName, {
+    method: "GET",
+    headers: {
+        "Content-Type": "application/json"
+    }
+})
+    .then(r => {
+        return r.json();
+    })
+    .then(data => {
+        console.log(data);
+        currentPlanet = data;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 
 document.addEventListener("DOMContentLoaded", () => {
     setupButtons();  // Initialize the buttons
 
-    // You can also call the rendering function here
+    // remember to replace with data
     renderPlanet("Data\\star_data2.json");
 });
