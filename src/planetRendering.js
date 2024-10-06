@@ -6,7 +6,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 import { createConstellationStar, buildConst, getConstStars } from "./constellationStar.js";
-import { exitButton, saveButton, toggleButton } from './controlRendering.js';
+import {exitButton, saveButton, screenshotButton, toggleButton} from './controlRendering.js';
+import {takeScreenshot} from "./screenshotHandling.js";
 
 export function renderPlanet (filePath) {
 
@@ -18,9 +19,13 @@ export function renderPlanet (filePath) {
     camera.position.set(0, 0, 100);  // Starting position
 
 // Set up the WebGL renderer
-    var renderer = new THREE.WebGLRenderer({antialias: true});
+    var renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        preserveDrawingBuffer: true
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
 
 // Orbit Controls Setup (allowing free camera movement)
     createControls(camera, renderer);
@@ -37,6 +42,8 @@ export function renderPlanet (filePath) {
     composer.addPass(bloomPass);
 
     renderer.setClearColor(0x000000);  // black background
+    renderer.autoClear = false;
+
 
     function radecToCartesian(ra, dec, distance) {
         ra = ra / 12 * Math.PI;  // Convert RA to radians
@@ -259,7 +266,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     function handleRotate(){
         stars.rotateOnAxis(rotationAxis, rotationSpeed);
         getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
-        console.log(getConstStars());
+        // console.log(getConstStars());
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
     }
 
@@ -290,4 +297,10 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         rotationSpeed = maxRotationSpeed;
     })
     animate();
+
+    screenshotButton.addEventListener('click', () => {
+        if(screenshotButton.classList.contains('active')) {
+            takeScreenshot(renderer);
+        }
+    })
 }

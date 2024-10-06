@@ -1,6 +1,7 @@
 import {renderPlanet} from "./src/planetRendering.js";
 import {createControls} from "./src/orbitControls.js";
 import {setupButtons} from "./src/controlRendering.js";
+import {showScreenshotArea} from "./src/screenshotHandling.js";
 
 const path = window.location.pathname;
 
