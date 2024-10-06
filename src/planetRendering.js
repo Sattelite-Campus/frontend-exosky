@@ -192,39 +192,35 @@ export function renderPlanet (filePath) {
     var planetDistances = {};
 
     function loadFloor() {
-<<<<<<< HEAD
-=======
-        //fetch planet data
-        fetch('planet_data_real.json', {mode: 'no-cors'})
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(planet => {
-                    //name : distance pair
-                    console.log(planet);
-                    planetDistances[planet.name] = planet.dist;
-                });
-            })
-            .catch(error => console.error('Error loading planet data:', error));
->>>>>>> 3d2318b9e0a8790981813078ca84f276eedbe666
-        var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);
+        // Create a large sphere to act as a planet
+        var planetRadius = 9950;
+        var geometry = new THREE.SphereGeometry(planetRadius, 64, 64); // Replace CylinderGeometry with SphereGeometry
     
-        // Load texture image for the floor
-        var texture = new THREE.TextureLoader().load('../Textures/Gaseous1.png'); // Replace with your image path
+        // Load texture image for the planet's surface
+        var texture = new THREE.TextureLoader().load('../Textures/Gaseous2.png'); // Replace with your image path
     
-        // Create a material using the loaded texture
+        // Create a material using the loaded texture, ensuring no lighting interaction
         var material = new THREE.MeshBasicMaterial({
             map: texture,
-            side: THREE.DoubleSide,
+            side: THREE.FrontSide,  // Render only the outside of the sphere
             transparent: false,
             opacity: 1,
-            depthWrite: true
+            depthWrite: true,
+            depthTest: true
         });
     
-        var plane = new THREE.Mesh(geometry, material);
-        plane.position.set(0, -102, 0);  // Set X and Z to 0 for centering
-        plane.name = "floor";
-        scene.add(plane);
+        // Create the planet mesh using the sphere geometry and material
+        var planet = new THREE.Mesh(geometry, material);
+        planet.position.set(0, -planetRadius - 50, 0);  // Lower the sphere so camera is on its surface
+        planet.name = "floor";  // Keep the name as "floor" for compatibility
+        scene.add(planet);
+    
+        // Adjust the camera position to simulate standing on the surface of the planet
+        camera.position.set(0, 0, 100);  // Place the camera on the surface of the sphere along the Z-axis
+        camera.lookAt(planet.position);  // Make the camera look towards the center of the sphere
     }
+    
+    
 
     function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
         var lineMaterial = new THREE.LineBasicMaterial({
