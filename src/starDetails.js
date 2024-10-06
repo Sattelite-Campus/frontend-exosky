@@ -15,7 +15,7 @@ export function compileStarData(starData) {
 
     var starMesh = new THREE.Mesh(geometry, material);
     starMesh.position.set(star.pos.x, star.pos.y, star.pos.z);  // Set the position of the sphere
-    starMesh.userData = {starData};
+    starMesh.userData = star;
     stars.push(starMesh);
   });
   return stars;
@@ -56,16 +56,16 @@ export function showDetails(event, camera) {
   function renderDetails(){
     const detailsDiv = document.querySelector('.star-details');
     detailsDiv.innerHTML = '';
-    for (const [key, value] of Object.entries(starDetails)) {
+    for (const [key, value] of Object.entries(starData)) {
       const p = document.createElement('p');
       p.innerHTML = `<strong>${key}:</strong> ${value}`;
       detailsDiv.appendChild(p);
     }
   }
 
-  console.log(star);
+  console.log(starData);
   //render details on top right corner
-  renderDetails(starDetails);
+  renderDetails(starData);
 
 
   return starData;
