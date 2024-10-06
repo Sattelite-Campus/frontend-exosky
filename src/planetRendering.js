@@ -6,8 +6,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 
-import { createConstellationStar, buildConst } from "./constellationStar.js";
-import { toggleButton } from './controlRendering.js';
+import { createConstellationStar, buildConst, getConstStars } from "./constellationStar.js";
+import { exitButton, saveButton, toggleButton } from './controlRendering.js';
 
 export function renderPlanet (filePath) {
 
@@ -229,7 +229,9 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
                 createStar(star.ra, star.dec, star.mag_b, star.mag_v);
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
-                    createConstellationStar(scene, pos.x, pos.y, pos.z, 20);
+                    createConstellationStar(scene, pos.x, pos.y, pos.z, 30);
+                    
+
                 }
 
             });
@@ -240,7 +242,6 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
             if(stars) {
                 scene.add(stars);
             }
-
             drawDynamicConstellations(starVertices);
         })
         .catch(error => console.error('Error loading planet data:', error));
@@ -249,14 +250,18 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     loadSkySphere();
 
     var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
-    var rotationSpeed = 0.001;
+    const maxRotationSpeed = 0.001
+    var rotationSpeed = maxRotationSpeed;
     var orbitRadius = 100;
     var orbitSpeed = 0.01;
 
+
+
     function animate() {
         requestAnimationFrame(animate);
-        // stars.rotateOnAxis(rotationAxis, rotationSpeed);
-        // allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+        stars.rotateOnAxis(rotationAxis, rotationSpeed);
+        getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
+        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
 
         // Orbit the floor around the origin
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
@@ -264,6 +269,16 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
         composer.render();
     }
-    toggleButton.addEventListener('click', () => buildConst(scene, camera, drawLineBetweenStars));
+    toggleButton.addEventListener('click', () => {
+        buildConst(scene, camera, drawLineBetweenStars);
+        rotationSpeed = 0;
+    });
+    exitButton.addEventListener('click', () => {
+        rotationSpeed = maxRotationSpeed;
+    })
+
+    saveButton.addEventListener('click', () => {
+        rotationSpeed = maxRotationSpeed;
+    })
     animate();
 }

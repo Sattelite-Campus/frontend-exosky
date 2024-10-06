@@ -11,7 +11,7 @@ export function createConstellationStar(scene, x, y, z, radius) {
 
     var geometry = new THREE.SphereGeometry(radius, 32, 32);  // Creates a sphere with the given radius
     var material = new THREE.MeshBasicMaterial({
-        color: 0xff5555,
+        color: new THREE.Color(1,.5,.5),
         transparent: true,
         opacity: 0,  // Transparency for the sphere
         depthWrite: false  // Disable depth write so the sphere is always rendered on top
@@ -26,7 +26,7 @@ export function createConstellationStar(scene, x, y, z, radius) {
 export function buildConst(scene, camera, drawLineBetweenStars) {
 
     const_stars.forEach(star => {
-        star.material.color.set(0xff5555);
+        star.material.color.setRGB(1,.5,.5);
         star.material.opacity = 0.5;
     });
     // event listener for mouse clicks
@@ -56,15 +56,13 @@ function onLeftClick(event, camera, drawLineBetweenStars) {
     
     if (intersects.length > 0) {
         new_const_stars.push(intersects[0].object);
-        const length = new_const_stars.length - 1;
-        new_const_stars[length].material.color.set(0x55ff00); // Change color of most recent halo to yellow
-        new_const_stars[length].translateZ(1); // Bring to front
+        const length = new_const_stars.length;
+        new_const_stars[length - 1].material.color.setRGB(1,1,0); // Change color of most recent halo to yellow
         if (new_const_stars.length >= 2) { // If there are more than 2 stars selected
-            new_const_stars[length - 1].material.color.set(0x00ff00); // Turn the previous yellow halo green
-            new_const_stars[length - 1].translateZ(1); // Bring to front
+            new_const_stars[length - 2].material.color.setRGB(0,1,0); // Turn the previous yellow halo green
             drawLineBetweenStars(
-                new_const_stars[new_const_stars.length - 1].position, 
-                new_const_stars[new_const_stars.length - 2].position, 
+                new_const_stars[length - 1].position, 
+                new_const_stars[length - 2].position, 
                 new THREE.LineBasicMaterial({
                     color: 0xFFFFFF,
                     opacity: 0.5,
@@ -75,7 +73,15 @@ function onLeftClick(event, camera, drawLineBetweenStars) {
             );
         } 
     }
+    console.log();
+    
+}
 
+export function getConstStars() {
+    return const_stars;
+}
+export function getConstLines() {
+    return new_const_lines;
 }
 
 function onRightClick(scene) {
@@ -90,8 +96,8 @@ function onRightClick(scene) {
 
     // If there's a star remaining, make it's halo yellow
     const length = new_const_stars.length;
-    if (length > 1) {
-        new_const_stars[length - 1].material.color.set(0x00ff00);
+    if (length >= 1) {
+        new_const_stars[length - 1].material.color.setRGB(1,1,0);
     }
 }
 
