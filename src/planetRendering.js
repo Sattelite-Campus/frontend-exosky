@@ -231,8 +231,6 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
                     createConstellationStar(scene, pos.x, pos.y, pos.z, 30);
-                    
-
                 }
 
             });
@@ -256,13 +254,28 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     var orbitRadius = 100;
     var orbitSpeed = 0.01;
 
+    function handleRotate(){
+        stars.rotateOnAxis(rotationAxis, rotationSpeed);
+        const constStars = getConstStars(); // Fetch the stars each frame
+        if (!constStars || constStars.length === 0) {
+            console.log("Const stars not loaded yet.");
+        } else {
+            console.log("Const stars loaded:", constStars);
+            constStars.forEach(star => {
+                star.rotateOnAxis(rotationAxis, rotationSpeed); // Apply rotation
+            });
+        }
+        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+    }
 
 
     function animate() {
         requestAnimationFrame(animate);
-        stars.rotateOnAxis(rotationAxis, rotationSpeed);
-        getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
-        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+
+        //wait for stars to load
+        if (stars) {
+            handleRotate();
+        }
 
         // Orbit the floor around the origin
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
