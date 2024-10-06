@@ -58,6 +58,7 @@ function createStar(ra, dec, mag_b, mag_v) {
     var position = radecToCartesian(ra, dec, 1000);
     starPositions.push(position.x, position.y, position.z);
     starSizes.push(size);
+    starVertices.push(position);
 
     const mag_index = Math.min(25, Math.max(0, 15 - (mag_b - mag_v)));
     const r = Math.min(1, 0.5 + mag_index / 25 / 16);
@@ -68,7 +69,11 @@ function createStar(ra, dec, mag_b, mag_v) {
 
 var vertexShader = `
     attribute float size;
+    attribute vec3 color;   // Add color attribute
+    varying vec3 vColor;    // Pass color to fragment shader
+
     void main() {
+        vColor = color;    // Assign color attribute to varying
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         gl_PointSize = size * (300.0 / -mvPosition.z);  // Adjust size based on distance
         gl_Position = projectionMatrix * mvPosition;
@@ -77,15 +82,18 @@ var vertexShader = `
 
 var fragmentShader = `
     uniform sampler2D pointTexture;
+    varying vec3 vColor;
+
     void main() {
-        gl_FragColor = texture2D(pointTexture, gl_PointCoord);
+        vec4 texColor = texture2D(pointTexture, gl_PointCoord);
+        gl_FragColor = vec4(vColor, 1.0) * texColor;  // Multiply color with texture
     }
 `;
+
 
 // Create the geometry for stars
 var starGeometry = new THREE.BufferGeometry();
 var starMaterial = new THREE.ShaderMaterial({
-    color: new THREE.Float32BufferAttribute(starColors, 3),
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
     uniforms: {
