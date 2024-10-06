@@ -309,6 +309,7 @@ export function renderPlanet (filePath) {
     var brightStars = [];
     var constellationStars = [];
 
+    var showDetails = false;
     fetch(filePath, {mode: 'no-cors'})
         .then(response => response.json())
         .then(data => {
@@ -335,9 +336,9 @@ export function renderPlanet (filePath) {
                 scene.add(stars);
             }
             drawDynamicConstellations(starVertices);
-            // starDetails.compileStarData(brightStars).forEach(mesh => scene.add(mesh));
+            starDetails.compileStarData(brightStars).forEach(mesh => scene.add(mesh));
             constellationStars = ConstMaker.compileStarData(brightStars);
-            constellationStars.forEach(mesh => scene.add(mesh));
+
         })
         .catch(error => console.error('Error loading planet data:', error));
 
@@ -456,4 +457,16 @@ export function renderPlanet (filePath) {
             takeScreenshot(renderer);
         }
     });
+
+    Buttons.showDetailsButton.addEventListener('click', () => {
+        if (showDetails) {
+            showDetails = false;
+            ConstMaker.hideStars(scene);
+        } else {
+            showDetails = true;
+            ConstMaker.showStars(scene);
+        }
+        console.log(showDetails);
+    });
+
 }
