@@ -15,7 +15,7 @@ export function renderPlanet (filePath) {
 
 // Set up the camera
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000);
-    camera.position.set(100, 0, 100);  // Starting position
+    camera.position.set(0, 0, 100);  // Starting position
 
 // Set up the WebGL renderer
     var renderer = new THREE.WebGLRenderer({antialias: true});
