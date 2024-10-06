@@ -52,15 +52,18 @@ var starSizes = [];  // Array for dynamically calculated sizes
 var starVertices = [];  // Store positions for constellation creation
 var constellationCenters = [];  // Track constellation centers
 let starColors = [];
-function createStar(ra, dec, distance, lum, mag_b, mag_v) {
+function createStar(ra, dec, mag_b, mag_v) {
+    const size = 30 * Math.pow(1.2, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
+    // Create a star object and store positions and sizes
     var position = radecToCartesian(ra, dec, 1000);
     starPositions.push(position.x, position.y, position.z);
     starSizes.push(size);
-    starVertices.push(position);  // Save for constellation drawing
-    // if(size > 20){
-    //     console.log(size);
-    //     createConstellationStar(scene, camera, position.x, position.y, position.z, 10);
-    // }
+
+    const mag_index = Math.min(25, Math.max(0, 15 - (mag_b - mag_v)));
+    const r = Math.min(1, 0.5 + mag_index / 25 / 16);
+    const g = Math.min(1, 0.01 + mag_index / 25 / 2);
+    const b = Math.min(1, Math.pow(mag_index / 25, 2));
+    starColors.push(r, g, b);
 }
 
 var vertexShader = `
