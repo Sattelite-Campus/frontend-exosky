@@ -217,7 +217,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         lineGeometry.setAttribute('position', new THREE.BufferAttribute(lineVertices, 3));
         var line = new THREE.Line(lineGeometry, material);
         allLines.push(line);
-        list_array.push(line)
+        list_array?.push(line);
         scene.add(line);
     }
 
@@ -260,7 +260,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
     function animate() {
         requestAnimationFrame(animate);
-        stars.rotateOnAxis(rotationAxis, rotationSpeed);
+        stars?.rotateOnAxis(rotationAxis, rotationSpeed);
         getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
 
