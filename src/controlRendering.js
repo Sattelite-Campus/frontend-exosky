@@ -39,6 +39,7 @@ export function setupButtons() {
     // Handle save button click
     saveButton.addEventListener("click", () => {
         console.log("Settings saved.");
+        constellationModeDiv.style.display = "none";
         // Add code to save brightness settings or other configurations
     });
 
