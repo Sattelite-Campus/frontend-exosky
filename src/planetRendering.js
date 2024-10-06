@@ -198,6 +198,7 @@ export function renderPlanet (filePath) {
             .then(data => {
                 data.forEach(planet => {
                     //name : distance pair
+                    console.log(planet);
                     planetDistances[planet.name] = planet.dist;
                 });
             })
@@ -318,7 +319,7 @@ export function renderPlanet (filePath) {
                 scene.add(stars);
             }
             drawDynamicConstellations(starVertices);
-            starDetails.compileStarData(brightStars).forEach(mesh => scene.add(mesh));
+            // starDetails.compileStarData(brightStars).forEach(mesh => scene.add(mesh));
             constellationStars = ConstMaker.compileStarData(brightStars);
             constellationStars.forEach(mesh => scene.add(mesh));
         })
@@ -436,7 +437,6 @@ export function renderPlanet (filePath) {
     Buttons.screenshotButton.addEventListener('click', () => {
         if(screenshotButton.classList.contains('active')) {
             takeScreenshot(renderer);
-            // console.log()
         }
     });
 }
