@@ -48,6 +48,8 @@ starTexture.minFilter = THREE.LinearFilter;
 
 var starPositions = [];
 var starSizes = [];  // Array for dynamically calculated sizes
+var starVertices = [];  // Store positions for constellation creation
+var constellationCenters = [];  // Track constellation centers
 
 // Create a star object and store positions and sizes
 function createStar(ra, dec, distance, mag) {
@@ -55,6 +57,7 @@ function createStar(ra, dec, distance, mag) {
     var position = radecToCartesian(ra, dec, distance);
     starPositions.push(position.x, position.y, position.z);
     starSizes.push(size);
+    starVertices.push(position);  // Save for constellation drawing
 }
 
 var vertexShader = `
@@ -115,22 +118,78 @@ function loadFloor(){
     scene.add(plane);
 }
 
-fetch('Data\\star_data.json', {
-    mode: 'no-cors'
-})
+// Function to draw dynamic constellations
+function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 250, maxConstellationDistance = 500) {
+var lineMaterial = new THREE.LineBasicMaterial({ color: 0x777777, opacity: 0.5, transparent: true, linewidth: 2 });
+
+    function createBranch(currentStar, depth, maxDepth) {
+        if (depth > maxDepth) return;
+
+        let branches = Math.floor(Math.random() * (maxBranches - 1)) + 1;
+        for (let i = 0; i < branches; i++) {
+            let nearbyStar = getFilteredNearbyStar(currentStar, distanceThreshold, vertices);
+            if (nearbyStar) {
+                drawLineBetweenStars(currentStar, nearbyStar, lineMaterial);
+                createBranch(nearbyStar, depth + 1, maxDepth);
+            }
+        }
+    }
+
+    var selectedStartStars = selectUniqueStartStars(vertices, 20, maxConstellationDistance);  // Enforce separation
+    selectedStartStars.forEach(startStar => createBranch(startStar, 0, maxDepth));
+}
+
+// Select unique starting points with a maximum distance constraint
+function selectUniqueStartStars(vertices, count, maxConstellationDistance) {
+    let selectedStars = [];
+
+    for (let attempts = 0; attempts < 5 * count && selectedStars.length < count; attempts++) {
+        let candidateStar = vertices[Math.floor(Math.random() * vertices.length)];
+
+        // Ensure candidate star is sufficiently far from other constellation centers
+        let isFar = constellationCenters.every(center => center.distanceTo(candidateStar) > maxConstellationDistance);
+
+        if (isFar) {
+            selectedStars.push(candidateStar);
+            constellationCenters.push(candidateStar);  // Track this constellation's center
+        }
+    }
+    return selectedStars;
+}
+
+// Filter to find a suitable nearby star for better shapes
+function getFilteredNearbyStar(currentStar, threshold, vertices) {
+    let candidates = vertices.filter(star => 
+        star !== currentStar &&
+        currentStar.distanceTo(star) < threshold &&
+        Math.abs(currentStar.x - star.x) > threshold / 5 &&
+        Math.abs(currentStar.y - star.y) > threshold / 5 &&
+        Math.abs(currentStar.z - star.z) > threshold / 5
+    );
+    return candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : null;
+}
+
+function drawLineBetweenStars(star1, star2, material) {
+    var lineGeometry = new THREE.BufferGeometry();
+    const lineVertices = new Float32Array([star1.x, star1.y, star1.z, star2.x, star2.y, star2.z]);
+    lineGeometry.setAttribute('position', new THREE.BufferAttribute(lineVertices, 3));
+    var line = new THREE.Line(lineGeometry, material);
+    scene.add(line);
+}
+
+fetch('Data\\star_data.json', { mode: 'no-cors' })
     .then(response => response.json())
     .then(data => {
         data.forEach(planet => {
             createStar(planet.ra, planet.dec, 1000, planet.mag);
         });
-
-        // Convert starPositions and starSizes to float32 arr
         starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-        starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1)); // Add sizes
-
-        // Create one Points object for all stars and add it to the scene
+        starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
         var stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
+
+        // Create dynamic constellations
+        drawDynamicConstellations(starVertices);
     })
     .catch(error => console.error('Error loading planet data:', error));
 
