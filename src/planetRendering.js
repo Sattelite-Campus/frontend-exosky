@@ -336,6 +336,18 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     saveButton.addEventListener('click', () => {
         rotationSpeed = maxRotationSpeed;
     })
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // Add event listener for window resize
+    window.addEventListener('resize', onWindowResize, false);
+
+
     animate();
 
     screenshotButton.addEventListener('click', () => {
