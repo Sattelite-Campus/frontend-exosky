@@ -26,7 +26,7 @@ var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 var bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    2.5,   // intensity of bloom
+    3,   // intensity of bloom
     1.3, // radius for bloom spread
     0.5  // threshold for bloom effect
 );
@@ -53,7 +53,7 @@ var starVertices = [];  // Store positions for constellation creation
 var constellationCenters = [];  // Track constellation centers
 let starColors = [];
 function createStar(ra, dec, mag_b, mag_v) {
-    const size = 70 * Math.pow(1.35, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
+    const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
     // Create a star object and store positions and sizes
     var position = radecToCartesian(ra, dec, 1000);
     starPositions.push(position.x, position.y, position.z);
@@ -65,8 +65,8 @@ function createStar(ra, dec, mag_b, mag_v) {
     const max = 2; // The "largest" Mag Index
 
     const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
-    const r = Math.min(1, 0.5 - mag_index / max / 2.5);
-    const g = Math.min(1, 0.01 + mag_index / max / 2.5);
+    const r = Math.min(1, 0.8*(0.5 - mag_index / max / 3.5));
+    const g = Math.min(1, 0.6*(0.01 + mag_index / max / 3));
     const b = Math.min(1, Math.pow(mag_index / max, 4));
     starColors.push(r, g, b);
 }
