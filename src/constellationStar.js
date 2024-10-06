@@ -14,7 +14,7 @@ export function compileStarData(starData) {
         var material = new THREE.MeshBasicMaterial({
             color: new THREE.Color(1, .5, .5),
             transparent: true,
-            opacity: 0,  // Transparency for the sphere
+            opacity: 0.5,  // Transparency for the sphere
             depthWrite: false  // Disable depth write so the sphere is always rendered on top
         });
     
@@ -25,17 +25,20 @@ export function compileStarData(starData) {
     return const_stars;
 }
 
-export function showStars(scene) {
-    stars.forEach(star => {
-        scene.add(star);  // Ensure each star is added back to the scene
-        star.visible = true;  // Make the star visible
+export function showStars() {
+    // Show Star Halo's
+    const_stars.forEach(star => {
+        star.material.color.setRGB(1,.5,.5);
+        star.visible = true;
     });
+
 }
 
-export function hideStars(scene) {
-    stars.forEach(star => {
-        scene.remove(star);  // Explicitly remove each star from the scene
-        star.visible = false;  // Set visibility to false as an extra safeguard
+export function hideStars() {
+    // Disable Star Halo's
+    const_stars.forEach(star => {
+        star.material.color.setRGB(1,.5,.5);
+        star.visible = false;
     });
 }
 
