@@ -189,7 +189,19 @@ export function renderPlanet (filePath) {
         scene.add(sky_sphere);
     }
 
+    var planetDistances = {};
+
     function loadFloor() {
+        //fetch planet data
+        fetch('planet_data_real.json', {mode: 'no-cors'})
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(planet => {
+                    //name : distance pair
+                    planetDistances[planet.name] = planet.dist;
+                });
+            })
+            .catch(error => console.error('Error loading planet data:', error));
         var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);
         var material = new THREE.MeshBasicMaterial({
             color: 0x8B4513,
@@ -423,6 +435,7 @@ export function renderPlanet (filePath) {
     Buttons.screenshotButton.addEventListener('click', () => {
         if(screenshotButton.classList.contains('active')) {
             takeScreenshot(renderer);
+            // console.log()
         }
     });
 }

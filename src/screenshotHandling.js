@@ -31,16 +31,23 @@ export function takeScreenshot(renderer) {
         width, height  // Size of the output
     );
 
-    // Convert the off-screen canvas to a data URL and trigger download
     const dataURL = offScreenCanvas.toDataURL('image/png');
-    try {
-        // Store the Base64 string in localStorage
-        localStorage.setItem('screenshot', dataURL);
-        console.log("Screenshot saved to localStorage.");
-        console.log(localStorage)
-    } catch (e) {
-        console.error("Error storing the screenshot in localStorage:", e);
-    }
+
+// You can use this data URL directly as an image source in HTML:
+    const img = document.createElement('img');
+    img.src = dataURL;
+    console.log(dataURL);
+
+    // Convert the off-screen canvas to a data URL and trigger download
+    // const dataURL = offScreenCanvas.toDataURL('image/png');
+    // try {
+    //     // Store the Base64 string in localStorage
+    //     localStorage.setItem('screenshot', dataURL);
+    //     console.log("Screenshot saved to localStorage.");
+    //     console.log(localStorage)
+    // } catch (e) {
+    //     console.error("Error storing the screenshot in localStorage:", e);
+    // }
 }
 
 //draw rectangle in middle of screen showing what gets screenshotted
