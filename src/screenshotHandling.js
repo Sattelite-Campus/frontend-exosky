@@ -38,16 +38,35 @@ export function takeScreenshot(renderer) {
     img.src = dataURL;
     console.log(dataURL);
 
-    // Convert the off-screen canvas to a data URL and trigger download
-    // const dataURL = offScreenCanvas.toDataURL('image/png');
-    // try {
-    //     // Store the Base64 string in localStorage
-    //     localStorage.setItem('screenshot', dataURL);
-    //     console.log("Screenshot saved to localStorage.");
-    //     console.log(localStorage)
-    // } catch (e) {
-    //     console.error("Error storing the screenshot in localStorage:", e);
-    // }
+    offScreenCanvas.toBlob((blob) => {
+        // Call a function to send this Blob to the backend server
+        sendScreenshotToBackend(blob);
+    });
+}
+
+function sendScreenshotToBackend(blob) {
+    const formData = new FormData();
+    formData.append('file', blob, 'screenshot.png');
+
+    fetch('http://exosky-backend.eastus.cloudapp.azure.com:5000/upload', {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors'  // Use 'cors' mode to allow interaction with the response, if your server supports it
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Image uploaded successfully:', data);
+            // Now you can process the image further using GPT on the backend
+        })
+        .catch(error => {
+            console.error('Error uploading image:', error);
+        });
+
 }
 
 //draw rectangle in middle of screen showing what gets screenshotted
