@@ -41,6 +41,7 @@ function onLeftClick(event, camera, drawLineBetweenStars) {
 
     // Raycaster and mouse for detecting clicks
     var raycaster = new THREE.Raycaster();
+    raycaster.params.Points.threshold = 60;
     var mouse = new THREE.Vector2();
 
     // Convert mouse position to normalized device coordinates (-1 to +1)
