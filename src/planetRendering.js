@@ -7,6 +7,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 
 import { createConstellationStar, buildConst } from "./constellationStar.js";
+import { toggleButton } from './controlRendering.js';
 
 export function renderPlanet (filePath) {
 
@@ -68,9 +69,15 @@ export function renderPlanet (filePath) {
 
         // Configurable values
         const min_offset = 2; // A value to raise the smallest B-V values above 0
-        const max = 2; // The "largest" Mag Index
+        const max = 2; // The typical largest mag index you'd get, following the operations below
+        // If values are still outside the range 0 - max, a clamp will reduce them to within these values
 
+        // Typically, mag_b and mag_v are values between 0 - 40, while their difference (mag_b - mag)v) is around -15 - 10
+        // The differences I saw, however, were typically around -2 to 0 
+        // Following these operations, the coolest stars have mag_index 0, and hottests are at 2
         const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
+
+        // The RGB operations that follow map the mag_index values (0 - max) evenly onto a color distribution ranging from dark red and light blue
         const r = Math.min(1, 0.8 * (0.5 - mag_index / max / 3.5));
         const g = Math.min(1, 0.6 * (0.01 + mag_index / max / 3));
         const b = Math.min(1, Math.pow(mag_index / max, 4));
@@ -222,7 +229,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
                 createStar(star.ra, star.dec, star.mag_b, star.mag_v);
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
-                    createConstellationStar(scene, camera, pos.x, pos.y, pos.z, 20);
+                    createConstellationStar(scene, pos.x, pos.y, pos.z, 20);
                 }
 
             });
@@ -257,6 +264,6 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
         composer.render();
     }
-    buildConst(scene, camera, drawLineBetweenStars);
+    toggleButton.addEventListener('click', () => buildConst(scene, camera, drawLineBetweenStars));
     animate();
 }
