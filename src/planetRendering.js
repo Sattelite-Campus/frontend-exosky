@@ -71,7 +71,6 @@ export function renderPlanet (filePath) {
     var starVertices = [];  // Store positions for constellation creation
     var constellationCenters = [];  // Track constellation centers
     let starColors = [];
-    let starDetails = [];
 
     function createStar(ra, dec, mag_b, mag_v, st_temp, st_mass, st_lum) {
         // Dynamic size calculation based on magnitudes
@@ -104,7 +103,6 @@ export function renderPlanet (filePath) {
     
         // Push the computed color to the starColors array
         starColors.push(r, g, b);
-        starDetails.push(st_mass, st_temp, mag_b, mag_v, st_lum);
     }
     
     // Function to compute RGB from blackbody temperature
@@ -280,7 +278,7 @@ export function renderPlanet (filePath) {
 
     var stars;
     var brightStars = [];
-    var detailedStars = [];
+    var constellationStars = [];
 
     fetch(filePath, {mode: 'no-cors'})
         .then(response => response.json())
@@ -297,7 +295,6 @@ export function renderPlanet (filePath) {
                         "temp": star.temp, 
                         "lum": star.lum
                     });
-                    ConstMaker.createConstellationStar(scene, pos.x, pos.y, pos.z, 20);
                 }
             });
             starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
@@ -308,9 +305,9 @@ export function renderPlanet (filePath) {
                 scene.add(stars);
             }
             drawDynamicConstellations(starVertices);
-            starDetails.compileStarDetails(brightStars).forEach(mesh => scene.add(mesh));
-            
-            
+            starDetails.compileStarData(brightStars).forEach(mesh => scene.add(mesh));
+            constellationStars = ConstMaker.compileStarData(brightStars);
+            constellationStars.forEach(mesh => scene.add(mesh));
         })
         .catch(error => console.error('Error loading planet data:', error));
 
@@ -319,15 +316,14 @@ export function renderPlanet (filePath) {
 
     var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
     const maxRotationSpeed = 0.001
-    var rotationSpeed = 0;
+    var rotationSpeed = maxRotationSpeed;
     var orbitRadius = 100;
     var orbitSpeed = 0.01;
     var total_rotation = 0;
 
     function handleRotate(){
         stars.rotateOnAxis(rotationAxis, rotationSpeed);
-        ConstMaker.getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
-        // console.log(getConstStars());
+        constellationStars.forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
         total_rotation = (total_rotation + rotationSpeed) % (2 * Math.PI);
     }
@@ -337,7 +333,7 @@ export function renderPlanet (filePath) {
         requestAnimationFrame(animate);
 
         //wait for stars to load
-        if (stars && ConstMaker.getConstStars().length > 0) {
+        if (stars && constellationStars.length > 0) {
             handleRotate();
         }
 
@@ -358,7 +354,7 @@ export function renderPlanet (filePath) {
             constellation = true;
             const constMode = document.getElementById("constellation-mode");
             constMode.style.display = "block";
-            ConstMaker.showConstMaker();            
+            ConstMaker.showStars();            
 
             // event listener for mouse clicks
             window.addEventListener('click', (event) => ConstMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
@@ -376,7 +372,7 @@ export function renderPlanet (filePath) {
         window.removeEventListener('contextmenu', () => ConstMaker.onRightClick(scene)) // contextmenu <=> right-click
     
         ConstMaker.resetConstMaker(scene);
-        ConstMaker.hideConstMaker();
+        ConstMaker.hideStars();
 
         const constMode = document.getElementById("constellation-mode");
         constMode.style.display = "none";
@@ -399,7 +395,7 @@ export function renderPlanet (filePath) {
 
     function resetRotation() {
         stars?.rotateOnAxis(rotationAxis, -total_rotation);
-        ConstMaker.getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, -total_rotation));
+        constellationStars.forEach(star => star.rotateOnAxis(rotationAxis, -total_rotation));
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, -total_rotation));
         total_rotation = 0;
     }

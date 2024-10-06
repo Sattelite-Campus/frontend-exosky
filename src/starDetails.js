@@ -1,6 +1,8 @@
 import * as THREE from 'three'
+
 let stars = [];
-export function compileStarDetails(starData) {
+
+export function compileStarData(starData) {
   
   starData.forEach(star => {
     var geometry = new THREE.SphereGeometry(20, 32, 32);  // Creates a sphere with the given radius
@@ -13,6 +15,7 @@ export function compileStarDetails(starData) {
 
     var starMesh = new THREE.Mesh(geometry, material);
     starMesh.position.set(star.pos.x, star.pos.y, star.pos.z);  // Set the position of the sphere
+    starMesh.userData = {starData};
     stars.push(starMesh);
   });
   return stars;
@@ -48,7 +51,7 @@ export function showDetails(event, camera) {
     return false;
   }
 
-  const star = intersects[0];
+  const starData = intersects[0].userData;
   
-  // TODO: Put star data into a popup
+  return starData;
 }
