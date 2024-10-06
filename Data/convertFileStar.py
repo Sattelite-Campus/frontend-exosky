@@ -18,31 +18,45 @@ distance = data['sy_dist']
 magnitude_b = data['sy_bmag']
 magnitude_v = data['sy_vmag']
 
-# Create a list to hold the star data
 star_list = []
 
-# Iterate through the data and create a dictionary for each star
+current_star = {}
+
 for i in range(len(host_name)):
-    # Check if any of the values are NaN and skip if true
-    if pd.isnull(host_name[i]) or pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]):
+    if pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]):
         continue
 
-    # Create a dictionary for each star with all relevant attributes
-    temp_dict = {
-        'host_name': host_name[i],
-        'st_temp': stellar_temp[i],
-        'st_mass': stellar_mass[i],
-        'st_lum': stellar_luminosity[i],
-        'ra': right_ascension[i],
-        'dec': declination[i],
-        'sy_dist': distance[i],
-        'mag_b': magnitude_b[i],
-        'mag_v': magnitude_v[i]
-    }
+    if i == 0 or host_name[i] != host_name[i - 1]:
+        # If a new host_name appears, add the previous host star to the list
+        if current_star:
+            star_list.append(current_star)
+        # Initialize a new dictionary for the current host star
+        current_star = {
+            'host_name': host_name[i],
+            'st_temp': None,
+            'st_mass': None,
+            'st_lum': None,
+            'ra': right_ascension[i],
+            'dec': declination[i],
+            'dist': distance[i],
+            'mag_b': None,
+            'mag_v': None
+        }
 
-    star_list.append(temp_dict)
+    if not pd.isnull(stellar_temp[i]):
+        current_star['stellar_temp'] = stellar_temp[i]
+    if not pd.isnull(stellar_mass[i]):
+        current_star['stellar_mass'] = stellar_mass[i]
+    if not pd.isnull(stellar_luminosity[i]):
+        current_star['stellar_luminosity'] = stellar_luminosity[i]
+    if not pd.isnull(magnitude_b[i]):
+        current_star['magnitude_b'] = magnitude_b[i]
+    if not pd.isnull(magnitude_v[i]):
+        current_star['magnitude_v'] = magnitude_v[i]
 
-# Save the list of stars as a JSON file
+if current_star:
+    star_list.append(current_star)
+
 output_file = 'star_data.json'
 with open(output_file, 'w') as f:
     json.dump(star_list, f, indent=4)
