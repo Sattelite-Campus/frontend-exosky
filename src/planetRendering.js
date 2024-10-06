@@ -7,7 +7,6 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 
 import { createConstellationStar, buildConst } from "./constellationStar.js";
-import { toggleButton } from './controlRendering.js';
 
 export function renderPlanet (filePath) {
 
@@ -223,7 +222,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
                 createStar(star.ra, star.dec, star.mag_b, star.mag_v);
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
-                    createConstellationStar(scene, pos.x, pos.y, pos.z, 20);
+                    createConstellationStar(scene, camera, pos.x, pos.y, pos.z, 20);
                 }
 
             });
@@ -258,6 +257,6 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
         composer.render();
     }
-    toggleButton.addEventListener('click', () => buildConst(scene, camera, drawLineBetweenStars));
+    buildConst(scene, camera, drawLineBetweenStars);
     animate();
 }
