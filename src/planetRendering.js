@@ -209,8 +209,8 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         lineGeometry.setAttribute('position', new THREE.BufferAttribute(lineVertices, 3));
         var line = new THREE.Line(lineGeometry, material);
         allLines.push(line);
-        scene.add(line);
         list_array.push(line)
+        scene.add(line);
     }
 
     var stars;
