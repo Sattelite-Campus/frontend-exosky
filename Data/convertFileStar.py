@@ -44,15 +44,15 @@ for i in range(len(host_name)):
         }
 
     if not pd.isnull(stellar_temp[i]):
-        current_star['st_temp'] = stellar_temp[i]
+        current_star['stellar_temp'] = stellar_temp[i]
     if not pd.isnull(stellar_mass[i]):
-        current_star['st_mass'] = stellar_mass[i]
+        current_star['stellar_mass'] = stellar_mass[i]
     if not pd.isnull(stellar_luminosity[i]):
-        current_star['st_lum'] = stellar_luminosity[i]
+        current_star['stellar_luminosity'] = stellar_luminosity[i]
     if not pd.isnull(magnitude_b[i]):
-        current_star['mag_b'] = magnitude_b[i]
+        current_star['magnitude_b'] = magnitude_b[i]
     if not pd.isnull(magnitude_v[i]):
-        current_star['mag_v'] = magnitude_v[i]
+        current_star['magnitude_v'] = magnitude_v[i]
 
 if current_star:
     star_list.append(current_star)
