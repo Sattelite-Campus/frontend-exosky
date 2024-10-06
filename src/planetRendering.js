@@ -61,7 +61,9 @@ export function renderPlanet (filePath) {
         var position = radecToCartesian(ra, dec, 1000);
         starPositions.push(position.x, position.y, position.z);
         starSizes.push(size);
-        starVertices.push(position);
+        if((mag_b+mag_v)<16.5) {
+            starVertices.push(position);
+        }
 
         // Configurable values
         const min_offset = 2; // A value to raise the smallest B-V values above 0
@@ -141,8 +143,8 @@ export function renderPlanet (filePath) {
     }
 
 // Function to draw dynamic constellations
-    function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 250, maxConstellationDistance = 500) {
-        var lineMaterial = new THREE.LineBasicMaterial({
+function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
+    var lineMaterial = new THREE.LineBasicMaterial({
             color: 0x777777,
             opacity: 0.5,
             transparent: true,
