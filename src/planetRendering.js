@@ -230,7 +230,9 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
             starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
             starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
             stars = new THREE.Points(starGeometry, starMaterial);
-            scene.add(stars);
+            if(stars) {
+                scene.add(stars);
+            }
 
             drawDynamicConstellations(starVertices);
         })
