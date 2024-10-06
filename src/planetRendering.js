@@ -5,8 +5,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
-
-import { createConstellationStar, buildConst, getConstStars } from "./constellationStar.js";
+import { createConstellationStar, buildConst, getConstStars, const_stars } from "./constellationStar.js";
 import { exitButton, saveButton, toggleButton } from './controlRendering.js';
 
 export function renderPlanet (filePath) {
@@ -200,6 +199,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         return candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : null;
     }
 
+
     var allLines = [];
 
     function drawLineBetweenStars(star1, star2, material) {
@@ -256,13 +256,21 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     var orbitRadius = 100;
     var orbitSpeed = 0.01;
 
+    function handleRotate(){
+        stars.rotateOnAxis(rotationAxis, rotationSpeed);
+        getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
+        console.log(getConstStars());
+        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+    }
 
 
     function animate() {
         requestAnimationFrame(animate);
-        stars.rotateOnAxis(rotationAxis, rotationSpeed);
-        getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
-        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+
+        //wait for stars to load
+        if (stars && getConstStars().length > 0) {
+            handleRotate();
+        }
 
         // Orbit the floor around the origin
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
