@@ -45,7 +45,7 @@ export function renderPlanet (filePath) {
         new THREE.Vector2(window.innerWidth, window.innerHeight),
         2,   // intensity of bloom
         1.3, // radius for bloom spread
-        0.5  // threshold for bloom effect
+        0.6  // threshold for bloom effect
     );
     composer.addPass(bloomPass);
 
@@ -197,8 +197,8 @@ export function renderPlanet (filePath) {
         const geometry = new THREE.SphereGeometry(planetRadius, 64, 64);
     
         // Load texture image for the planet's surface
-        const texture = new THREE.TextureLoader().load('../Textures/Gaseous1.png');
-    
+        const texture = new THREE.TextureLoader().load('../Textures/Gaseous2.png');
+        
         // Use MeshBasicMaterial to ensure no lighting interaction
         const material = new THREE.MeshBasicMaterial({
             map: texture,            // Use the loaded texture
@@ -209,7 +209,7 @@ export function renderPlanet (filePath) {
             depthTest: true,          // Enable z-order testing
             color: new THREE.Color(0xffffff)  // Set color to full white to preserve texture colors
         });
-    
+
         // Create the planet mesh using the sphere geometry and material
         const planet = new THREE.Mesh(geometry, material);
         planet.position.set(0, -planetRadius - 50, 0);  // Lower the sphere so camera is on its surface
