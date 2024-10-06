@@ -1,21 +1,25 @@
-document.getElementById('generateButton').addEventListener('click', async () => {
-    const resultDiv = document.getElementById('result');
+// Load environment variables from the .env file
 
-    // Get user's geographical location
-    navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
-        const userLocation = await getUserLocation(latitude, longitude);
+export function handleGPT() {
+    document.getElementById('generateButton').addEventListener('click', async () => {
+        const resultDiv = document.getElementById('result');
 
-        // Placeholder for the fictional constellation image
-        const constellationImage = "your_image_identifier"; // Replace with your image reference
+        // Retrieve the image data from local storage
+        const constellationImage = localStorage.getItem('screenshot');
 
-        // Use OpenAI API to generate name and story based on the constellation image and location
-        const response = await generateNameAndStory(constellationImage, userLocation);
+        // Get user's geographical location
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const {latitude, longitude} = position.coords;
+            const userLocation = await getUserLocation(latitude, longitude);
 
-        // Display the result
-        resultDiv.innerHTML = response;
+            // Use OpenAI API to generate name and story based on the constellation image and location
+            const response = await generateNameAndStory(constellationImage, userLocation);
+
+            // Display the result
+            resultDiv.innerHTML = response;
+        });
     });
-});
+}
 
 // Function to get user location information
 async function getUserLocation(latitude, longitude) {
@@ -29,9 +33,8 @@ async function getUserLocation(latitude, longitude) {
 
 // Function to call OpenAI API and generate name and story
 async function generateNameAndStory(constellationImage, location) {
-    const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your actual OpenAI API key
+    const apiKey = API_KEY;
     const endpoint = 'https://api.openai.com/v1/chat/completions';
-
     const response = await fetch(endpoint, {
         method: 'POST',
         headers: {

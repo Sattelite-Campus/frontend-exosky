@@ -2,6 +2,8 @@ import {renderPlanet} from "./src/planetRendering.js";
 import {createControls} from "./src/orbitControls.js";
 import {setupButtons} from "./src/controlRendering.js";
 import {showScreenshotArea} from "./src/screenshotHandling.js";
+import {handleGPT} from "./src/Gpt.js";
+
 
 const path = window.location.pathname;
 
@@ -32,7 +34,7 @@ console.log(planetName);
 
 document.addEventListener("DOMContentLoaded", () => {
     setupButtons();  // Initialize the buttons
-
     // You can also call the rendering function here
     renderPlanet("Data\\star_data3.json");
+    handleGPT();
 });
