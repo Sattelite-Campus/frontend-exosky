@@ -9,6 +9,7 @@ import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 import * as ConstMaker from "./constellationStar.js";
 import * as Buttons from './controlRendering.js';
 import { takeScreenshot } from "./screenshotHandling.js";
+import {screenshotButton} from "./controlRendering.js";
 
 export function renderPlanet (filePath) {
 
