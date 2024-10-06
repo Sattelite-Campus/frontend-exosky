@@ -8,6 +8,7 @@ import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 
 import * as ConstMaker from "./constellationStar.js";
 import * as Buttons from './controlRendering.js';
+import { takeScreenshot } from "./screenshotHandling.js";
 
 export function renderPlanet (filePath) {
 
@@ -24,9 +25,13 @@ export function renderPlanet (filePath) {
 
 
 // Set up the WebGL renderer
-    var renderer = new THREE.WebGLRenderer({antialias: true});
+    var renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        preserveDrawingBuffer: true
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
 
 // Orbit Controls Setup (allowing free camera movement)
     createControls(camera, renderer);
@@ -36,13 +41,15 @@ export function renderPlanet (filePath) {
     composer.addPass(new RenderPass(scene, camera));
     var bloomPass = new UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        3,   // intensity of bloom
+        2,   // intensity of bloom
         1.3, // radius for bloom spread
         0.5  // threshold for bloom effect
     );
     composer.addPass(bloomPass);
 
     renderer.setClearColor(0x000000);  // black background
+    renderer.autoClear = false;
+
 
     function radecToCartesian(ra, dec, distance) {
         ra = ra / 12 * Math.PI;  // Convert RA to radians
@@ -63,31 +70,71 @@ export function renderPlanet (filePath) {
     var constellationCenters = [];  // Track constellation centers
     let starColors = [];
 
-    function createStar(ra, dec, mag_b, mag_v) {
-        const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
+    function createStar(ra, dec, mag_b, mag_v, st_temp, st_mass, st_lum) {
+        // Dynamic size calculation based on magnitudes
+        const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), 0.9), 0.3)); // Luminosity ranges from -10 to 20
         var position = radecToCartesian(ra, dec, 1000);
         starPositions.push(position.x, position.y, position.z);
         starSizes.push(size);
-        if((mag_b+mag_v)<16.5) {
+        if ((mag_b + mag_v) < 16.5) {
             starVertices.push(position);
         }
-
-        // Configurable values
-        const min_offset = 2; // A value to raise the smallest B-V values above 0
-        const max = 2; // The typical largest mag index you'd get, following the operations below
-        // If values are still outside the range 0 - max, a clamp will reduce them to within these values
-
-        // Typically, mag_b and mag_v are values between 0 - 40, while their difference (mag_b - mag)v) is around -15 - 10
-        // The differences I saw, however, were typically around -2 to 0 
-        // Following these operations, the coolest stars have mag_index 0, and hottests are at 2
-        const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
-
-        // The RGB operations that follow map the mag_index values (0 - max) evenly onto a color distribution ranging from dark red and light blue
-        const r = Math.min(1, 0.8 * (0.5 - mag_index / max / 3.5));
-        const g = Math.min(1, 0.6 * (0.01 + mag_index / max / 3));
-        const b = Math.min(1, Math.pow(mag_index / max, 4));
+    
+        // Color assignment based on temperature or magnitude indices
+        let r, g, b;
+    
+        // If the temperature is valid, compute the RGB color using blackbody radiation principles
+        if (st_temp > 0) {
+            // console.log("VALID RGB CALC");
+            [r, g, b] = getRGBfromTemperature(st_temp);
+        } else {
+            // Default behavior using magnitude indices when temperature is not available
+            const min_offset = 2; // A value to raise the smallest B-V values above 0
+            const max = 2; // The typical largest mag index you'd get, following the operations below
+            const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
+    
+            // The RGB operations map the mag_index values (0 - max) evenly onto a color distribution ranging from dark red to light blue
+            r = Math.min(1, 0.8 * (0.5 - mag_index / max / 3.5));
+            g = Math.min(1, 0.6 * (0.01 + mag_index / max / 3));
+            b = Math.min(1, Math.pow(mag_index / max, 4));
+        }
+    
+        // Push the computed color to the starColors array
         starColors.push(r, g, b);
     }
+    
+    // Function to compute RGB from blackbody temperature
+    function getRGBfromTemperature(temp) {
+        // Define constants
+        const h = 6.626e-34; // Planck's constant (J·s)
+        const c = 3e8; // Speed of light (m/s)
+        const k = 1.38e-23; // Boltzmann's constant (J/K)
+    
+        // Sampled wavelengths for RGB components (in nanometers)
+        const wavelengths = [440, 550, 675]; // Blue, Green, Red respectively
+        const rgb = [0, 0, 0];
+    
+        // Calculate intensity for each wavelength
+        wavelengths.forEach((lambda, i) => {
+            lambda *= 1e-9; // Convert nm to meters
+            const intensity = (2 * h * c ** 2) / (lambda ** 5 * (Math.exp((h * c) / (lambda * k * temp)) - 1));
+            rgb[i] = intensity;
+        });
+    
+        // Normalize the RGB values
+        const maxVal = Math.max(...rgb);
+        if (maxVal > 0) {
+            rgb[0] /= maxVal; // Normalize Red
+            rgb[1] /= maxVal; // Normalize Green
+            rgb[2] /= maxVal; // Normalize Blue
+        }
+    
+        // Apply gamma correction to simulate human color perception
+        const gammaCorrect = (x) => (x <= 0.0031308) ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+    
+        return rgb.map(gammaCorrect);
+    }
+    
 
     var vertexShader = `
     attribute float size;
@@ -150,7 +197,7 @@ export function renderPlanet (filePath) {
             depthWrite: true
         });
         var plane = new THREE.Mesh(geometry, material);
-        plane.position.y = -102;
+        plane.position.set(0, -102, 0);  // Set X and Z to 0 for centering
         plane.name = "floor";
         scene.add(plane);
     }
@@ -205,6 +252,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         return candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : null;
     }
 
+
     var allLines = [];
 
     function drawLineBetweenStars(star1, star2, material) {
@@ -222,7 +270,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         lineGeometry.setAttribute('position', new THREE.BufferAttribute(lineVertices, 3));
         var line = new THREE.Line(lineGeometry, material);
         allLines.push(line);
-        list_array?.push(line);
+        list_array?.push(line)
         scene.add(line);
     }
 
@@ -232,7 +280,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         .then(response => response.json())
         .then(data => {
             data.forEach(star => {
-                createStar(star.ra, star.dec, star.mag_b, star.mag_v);
+                createStar(star.ra, star.dec, star.mag_b, star.mag_v, star.st_temp, star.st_mass, star.st_lum);
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
                     ConstMaker.createConstellationStar(scene, pos.x, pos.y, pos.z, 20);
@@ -258,15 +306,25 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     var rotationSpeed = 0;
     var orbitRadius = 100;
     var orbitSpeed = 0.01;
-
     var total_rotation = 0;
+
+    function handleRotate(){
+        stars.rotateOnAxis(rotationAxis, rotationSpeed);
+        ConstMaker.getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
+        // console.log(getConstStars());
+        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+        total_rotation = (total_rotation + rotationSpeed) % (2 * Math.PI);
+    }
+
 
     function animate() {
         requestAnimationFrame(animate);
-        stars?.rotateOnAxis(rotationAxis, rotationSpeed);
-        ConstMaker.getConstStars()?.forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
-        allLines?.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
-        total_rotation = (total_rotation + rotationSpeed) % (2 * Math.PI);
+
+        //wait for stars to load
+        if (stars && ConstMaker.getConstStars().length > 0) {
+            handleRotate();
+        }
+
         // Orbit the floor around the origin
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
         scene.getObjectByName("floor").position.z = orbitRadius * Math.sin(Date.now() * orbitSpeed / 1000);
@@ -292,22 +350,22 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     });
 
     Buttons.exitButton.addEventListener('click', () => {
-        constellation = false;
-        ConstMaker.hideConstMaker();
-        ConstMaker.resetConstMaker();
-
-        const constMode = document.getElementById("constellation-mode");
-        constMode.style.display = "none";
-
         //Remove ActionEvents
         window.removeEventListener('click', (event) => ConstMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
         window.removeEventListener('contextmenu', () => ConstMaker.onRightClick(scene)) // contextmenu <=> right-click
     
+        ConstMaker.resetConstMaker(scene);
+        ConstMaker.hideConstMaker();
+
+        const constMode = document.getElementById("constellation-mode");
+        constMode.style.display = "none";
+
+        constellation = false;
     });
 
     Buttons.saveButton.addEventListener('click', () => {
         ConstMaker.saveConst();
-        ConstMaker.resetConstMaker();
+        ConstMaker.resetConstMaker(scene);
     });
 
     Buttons.startButton.addEventListener('click', () => {
@@ -326,5 +384,22 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, -total_rotation));
         total_rotation = 0;
     });
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // Add event listener for window resize
+    window.addEventListener('resize', onWindowResize, false);
+
     animate();
+
+    screenshotButton.addEventListener('click', () => {
+        if(screenshotButton.classList.contains('active')) {
+            takeScreenshot(renderer);
+        }
+    })
 }

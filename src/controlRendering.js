@@ -8,6 +8,9 @@ export const brightnessSlider = document.getElementById("brightness");
 export const saveButton = document.getElementById("save");
 export const exitButton = document.getElementById("exit");
 
+export const showCameraButton = document.getElementById("show-camera");
+export const screenshotButton = document.getElementById("screenshot");
+
 export function setupButtons() {
 
     startButton.addEventListener("click", () => {
