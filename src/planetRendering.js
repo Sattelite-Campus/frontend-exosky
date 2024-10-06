@@ -192,20 +192,18 @@ export function renderPlanet (filePath) {
     var planetDistances = {};
 
     function loadFloor() {
-<<<<<<< HEAD
-=======
         //fetch planet data
-        fetch('planet_data_real.json', {mode: 'no-cors'})
+        fetch('Data\\planet_data_real.json', {mode: 'no-cors'})
             .then(response => response.json())
             .then(data => {
                 data.forEach(planet => {
                     //name : distance pair
-                    console.log(planet);
                     planetDistances[planet.name] = planet.dist;
                 });
+                console.log(planetDistances);
             })
             .catch(error => console.error('Error loading planet data:', error));
->>>>>>> 3d2318b9e0a8790981813078ca84f276eedbe666
+
         var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);
     
         // Load texture image for the floor
