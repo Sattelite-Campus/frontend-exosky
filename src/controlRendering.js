@@ -1,13 +1,14 @@
-export function setupButtons() {
-    const startButton = document.getElementById("start");
-    const stopButton = document.getElementById("stop");
-    const resetButton = document.getElementById("reset");
-    const toggleButton = document.getElementById("clmode");
+export const startButton = document.getElementById("start");
+export const stopButton = document.getElementById("stop");
+export const resetButton = document.getElementById("reset");
+export const toggleButton = document.getElementById("clmode");
 
-    const constellationModeDiv = document.getElementById("constellation-mode");
-    const brightnessSlider = document.getElementById("brightness");
-    const saveButton = document.getElementById("save");
-    const exitButton = document.getElementById("exit");
+export const constellationModeDiv = document.getElementById("constellation-mode");
+export const brightnessSlider = document.getElementById("brightness");
+export const saveButton = document.getElementById("save");
+export const exitButton = document.getElementById("exit");
+
+export function setupButtons() {
 
     startButton.addEventListener("click", () => {
         console.log("Start");
