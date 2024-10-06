@@ -60,10 +60,14 @@ function createStar(ra, dec, mag_b, mag_v) {
     starSizes.push(size);
     starVertices.push(position);
 
-    const mag_index = Math.min(25, Math.max(0, 15 - (mag_b - mag_v)));
-    const r = Math.min(1, 0.5 + mag_index / 25 / 16);
-    const g = Math.min(1, 0.01 + mag_index / 25 / 2);
-    const b = Math.min(1, Math.pow(mag_index / 25, 2));
+    // Configurable values
+    const min_offset = 2; // A value to raise the smallest B-V values above 0
+    const max = 2; // The "largest" Mag Index
+
+    const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
+    const r = Math.min(1, 0.5 - mag_index / max / 2.5);
+    const g = Math.min(1, 0.01 + mag_index / max / 2.5);
+    const b = Math.min(1, Math.pow(mag_index / max, 4));
     starColors.push(r, g, b);
 }
 
