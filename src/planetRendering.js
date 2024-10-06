@@ -193,12 +193,12 @@ export function renderPlanet (filePath) {
 
     function loadFloor() {
         //fetch planet data
-        fetch('Data\\planet_data_real.json', {mode: 'no-cors'})
+        fetch('Data\\planet_data.json', {mode: 'no-cors'})
             .then(response => response.json())
             .then(data => {
                 data.forEach(planet => {
                     //name : distance pair
-                    planetDistances[planet.name] = planet.dist;
+                    planetDistances[planet.name] = [planet.ra, planet.dec];
                 });
                 console.log(planetDistances);
             })
