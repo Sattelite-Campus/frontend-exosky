@@ -10,7 +10,7 @@ import * as ConstMaker from "./constellationStar.js";
 import * as Buttons from './controlRendering.js';
 import { takeScreenshot } from "./screenshotHandling.js";
 import {screenshotButton} from "./controlRendering.js";
-import * as starDetails from './starDetails.js';
+import * as starDetails from "./starDetails.js";
 
 export function renderPlanet (filePath) {
 
@@ -71,7 +71,7 @@ export function renderPlanet (filePath) {
     var starVertices = [];  // Store positions for constellation creation
     var constellationCenters = [];  // Track constellation centers
     let starColors = [];
-    let starDetails = [];
+    let starInfo = [];
 
     function createStar(ra, dec, mag_b, mag_v, st_temp, st_mass, st_lum) {
         // Dynamic size calculation based on magnitudes
@@ -104,7 +104,7 @@ export function renderPlanet (filePath) {
     
         // Push the computed color to the starColors array
         starColors.push(r, g, b);
-        starDetails.push(st_mass, st_temp, mag_b, mag_v, st_lum);
+        starInfo.push(st_mass, st_temp, mag_b, mag_v, st_lum);
     }
     
     // Function to compute RGB from blackbody temperature

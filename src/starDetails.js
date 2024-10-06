@@ -50,5 +50,16 @@ export function showDetails(event, camera) {
 
   const star = intersects[0];
   
-  // TODO: Put star data into a popup
+  //star into popup at cursor
+    const popup = document.querySelector('.star-popup');
+    popup.style.display = 'block';
+    popup.style.left = event.clientX + 'px';
+    popup.style.top = event.clientY + 'px';
+    popup.innerHTML = `
+        <h2>${star.object.name}</h2>
+        <p>Temperature: ${star.object.userData.temperature}K</p>
+        <p>Mass: ${star.object.userData.mass}M</p>
+        <p>Radius: ${star.object.userData.radius}R</p>
+    `;
+
 }
