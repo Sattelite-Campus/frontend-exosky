@@ -5,7 +5,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
-import { createConstellationStar, buildConst, getConstStars, const_stars } from "./constellationStar.js";
+import { createConstellationStar, buildConst, getConstStars } from "./constellationStar.js";
 import { exitButton, saveButton, toggleButton } from './controlRendering.js';
 
 export function renderPlanet (filePath) {
