@@ -4,6 +4,8 @@ import {createControls} from "./orbitControls.js";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
+
 // import {createConstellationStar} from "./src/constellationStar.js";
 
 export function renderPlanet (filePath) {
