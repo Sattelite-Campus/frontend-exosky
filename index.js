@@ -26,9 +26,9 @@ var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 var bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1.8,   // intensity of bloom
+    2.5,   // intensity of bloom
     1.3, // radius for bloom spread
-    0.3  // threshold for bloom effect
+    0.5  // threshold for bloom effect
 );
 composer.addPass(bloomPass);
 
@@ -53,7 +53,7 @@ var starVertices = [];  // Store positions for constellation creation
 var constellationCenters = [];  // Track constellation centers
 let starColors = [];
 function createStar(ra, dec, mag_b, mag_v) {
-    const size = 45 * Math.pow(1.2, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
+    const size = 70 * Math.pow(1.35, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
     // Create a star object and store positions and sizes
     var position = radecToCartesian(ra, dec, 1000);
     starPositions.push(position.x, position.y, position.z);
@@ -86,7 +86,7 @@ var fragmentShader = `
 
     void main() {
         vec4 texColor = texture2D(pointTexture, gl_PointCoord);
-        gl_FragColor = vec4(vColor, 1.0) * texColor*1.2;  // Multiply color with texture
+        gl_FragColor = vec4(vColor, 1.0) * texColor*1.4;  // Multiply color with texture
     }
 `;
 
