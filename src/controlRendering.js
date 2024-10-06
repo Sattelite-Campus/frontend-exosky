@@ -23,11 +23,7 @@ export function setupButtons() {
     });
 
     toggleButton.addEventListener("click", () => {
-        if (constellationModeDiv.style.display === "none") {
-            constellationModeDiv.style.display = "block";
-        } else {
-            constellationModeDiv.style.display = "none";
-        }
+        console.log("Toggle Constellation Maker");
     });
 
     brightnessSlider.addEventListener("input", (event) => {
@@ -39,13 +35,11 @@ export function setupButtons() {
     // Handle save button click
     saveButton.addEventListener("click", () => {
         console.log("Settings saved.");
-        constellationModeDiv.style.display = "none";
         // Add code to save brightness settings or other configurations
     });
 
     // Handle exit button click
     exitButton.addEventListener("click", () => {
         console.log("Exiting Constellation Mode.");
-        constellationModeDiv.style.display = "none";  // Hide the dropdown
     });
 }

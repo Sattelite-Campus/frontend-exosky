@@ -6,8 +6,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 
-import { createConstellationStar, buildConst, getConstStars } from "./constellationStar.js";
-import { exitButton, saveButton, toggleButton } from './controlRendering.js';
+import * as ConstMaker from "./constellationStar.js";
+import * as Buttons from './controlRendering.js';
 
 export function renderPlanet (filePath) {
 
@@ -17,6 +17,11 @@ export function renderPlanet (filePath) {
 // Set up the camera
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000);
     camera.position.set(0, 0, 100);  // Starting position
+    let default_cam_dir = new THREE.Vector3();
+    camera.getWorldDirection(default_cam_dir);
+    let default_cam_pos = new THREE.Vector3();
+    camera.getWorldPosition(default_cam_pos);
+
 
 // Set up the WebGL renderer
     var renderer = new THREE.WebGLRenderer({antialias: true});
@@ -230,9 +235,7 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
                 createStar(star.ra, star.dec, star.mag_b, star.mag_v);
                 if (star.mag_b + star.mag_v < 13) {
                     const pos = radecToCartesian(star.ra, star.dec, 1000);
-                    createConstellationStar(scene, pos.x, pos.y, pos.z, 30);
-                    
-
+                    ConstMaker.createConstellationStar(scene, pos.x, pos.y, pos.z, 20);
                 }
 
             });
@@ -252,34 +255,76 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
     var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
     const maxRotationSpeed = 0.001
-    var rotationSpeed = maxRotationSpeed;
+    var rotationSpeed = 0;
     var orbitRadius = 100;
     var orbitSpeed = 0.01;
 
-
+    var total_rotation = 0;
 
     function animate() {
         requestAnimationFrame(animate);
         stars?.rotateOnAxis(rotationAxis, rotationSpeed);
-        getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
-        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
-
+        ConstMaker.getConstStars()?.forEach(star => star.rotateOnAxis(rotationAxis, rotationSpeed));
+        allLines?.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+        total_rotation = (total_rotation + rotationSpeed) % (2 * Math.PI);
         // Orbit the floor around the origin
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
         scene.getObjectByName("floor").position.z = orbitRadius * Math.sin(Date.now() * orbitSpeed / 1000);
 
         composer.render();
     }
-    toggleButton.addEventListener('click', () => {
-        buildConst(scene, camera, drawLineBetweenStars);
-        rotationSpeed = 0;
-    });
-    exitButton.addEventListener('click', () => {
-        rotationSpeed = maxRotationSpeed;
-    })
+    let rotating = false;
+    let constellation = false;
 
-    saveButton.addEventListener('click', () => {
-        rotationSpeed = maxRotationSpeed;
-    })
+
+
+    Buttons.toggleButton.addEventListener('click', () => {
+        if (!rotating && !constellation) {
+            constellation = true;
+            const constMode = document.getElementById("constellation-mode");
+            constMode.style.display = "block";
+            ConstMaker.showConstMaker();            
+
+            // event listener for mouse clicks
+            window.addEventListener('click', (event) => ConstMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
+            window.addEventListener('contextmenu', () => ConstMaker.onRightClick(scene)) // contextmenu <=> right-click
+        }
+    });
+
+    Buttons.exitButton.addEventListener('click', () => {
+        constellation = false;
+        ConstMaker.hideConstMaker();
+        ConstMaker.resetConstMaker();
+
+        const constMode = document.getElementById("constellation-mode");
+        constMode.style.display = "none";
+
+        //Remove ActionEvents
+        window.removeEventListener('click', (event) => ConstMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
+        window.removeEventListener('contextmenu', () => ConstMaker.onRightClick(scene)) // contextmenu <=> right-click
+    
+    });
+
+    Buttons.saveButton.addEventListener('click', () => {
+        ConstMaker.saveConst();
+        ConstMaker.resetConstMaker();
+    });
+
+    Buttons.startButton.addEventListener('click', () => {
+        if (!constellation) {
+            rotating = true;
+            rotationSpeed = maxRotationSpeed;
+        }
+    });
+
+    Buttons.stopButton.addEventListener('click', () => {
+        rotating = false;
+        rotationSpeed = 0;
+
+        stars?.rotateOnAxis(rotationAxis, -total_rotation);
+        ConstMaker.getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, -total_rotation));
+        allLines.forEach(line => line.rotateOnAxis(rotationAxis, -total_rotation));
+        total_rotation = 0;
+    });
     animate();
 }
