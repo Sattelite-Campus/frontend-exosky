@@ -332,13 +332,13 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
 
         composer.render();
     }
-    let rotating = false;
     let constellation = false;
 
 
 
     Buttons.toggleButton.addEventListener('click', () => {
-        if (!rotating && !constellation) {
+        stopRotation();
+        if (!constellation) {
             constellation = true;
             const constMode = document.getElementById("constellation-mode");
             constMode.style.display = "block";
@@ -351,6 +351,10 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
     });
 
     Buttons.exitButton.addEventListener('click', () => {
+        exitConstMaker();
+    });
+
+    function exitConstMaker() {
         //Remove ActionEvents
         window.removeEventListener('click', (event) => ConstMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
         window.removeEventListener('contextmenu', () => ConstMaker.onRightClick(scene)) // contextmenu <=> right-click
@@ -362,29 +366,29 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
         constMode.style.display = "none";
 
         constellation = false;
-    });
+    }
 
     Buttons.saveButton.addEventListener('click', () => {
         ConstMaker.saveConst();
-        ConstMaker.resetConstMaker(scene);
+        exitConstMaker();
     });
 
     Buttons.startButton.addEventListener('click', () => {
         if (!constellation) {
-            rotating = true;
             rotationSpeed = maxRotationSpeed;
         }
     });
 
-    Buttons.stopButton.addEventListener('click', () => {
-        rotating = false;
+    Buttons.stopButton.addEventListener('click', stopRotation);
+
+    function stopRotation() {
         rotationSpeed = 0;
 
         stars?.rotateOnAxis(rotationAxis, -total_rotation);
         ConstMaker.getConstStars().forEach(star => star.rotateOnAxis(rotationAxis, -total_rotation));
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, -total_rotation));
         total_rotation = 0;
-    });
+    }
 
     function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
