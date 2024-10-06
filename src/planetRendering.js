@@ -144,7 +144,7 @@ export function renderPlanet (filePath) {
             depthWrite: true
         });
         var plane = new THREE.Mesh(geometry, material);
-        plane.position.y = -102;
+        plane.position.set(0, -102, 0);  // Set X and Z to 0 for centering
         plane.name = "floor";
         scene.add(plane);
     }

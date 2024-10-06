@@ -2,8 +2,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export function createControls(camera, renderer) {
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = false;
-    controls.enablePan = false;
+    controls.enableZoom = true;
+    controls.enablePan = true;
 
     //resizing
     window.addEventListener('resize', () => {
