@@ -11,26 +11,27 @@ star_name = data['hostname']
 right_ascension = data['ra']
 declination = data['dec']
 distance = data['sy_dist']
-magnitude = data['sy_bmag']
+solar_mass = data['st_mass']
+magnitude_b = data['sy_bmag']
+magnitude_v = data['sy_vmag']
+
 
 # Print the extracted data
 # print("Star Name:", star_name)
 # print("Right Ascension:", right_ascension)
 # print("Declination:", declination)
 # print("Distance:", distance)
-print("Luminosity:", magnitude)
+# print("Blue Light Magnitude:", magnitude_b)
 
 #create a dictionary with planet names as keys and a list of right ascension and declination as values
 star_list = []
 for i in range(len(star_name)):
     # check if any of them are nan
-    if pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]) or pd.isnull(magnitude[i]):
+    if pd.isnull(right_ascension[i]) or pd.isnull(declination[i]) or pd.isnull(distance[i]) or pd.isnull(magnitude_b[i]):
         continue
-    temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag' : magnitude[i]}
+    temp_dict = {'name': star_name[i], 'ra': right_ascension[i], 'dec': declination[i], 'dist' : distance[i], 'mag_b' : magnitude_b[i], 'mass' : solar_mass[i]}
     star_list.append(temp_dict)
 # print(star_list)
-
-#TODO: Get Luminosity and turn luminosity into star brightness on our star map
 
 #return dictionary as json file
 import json
