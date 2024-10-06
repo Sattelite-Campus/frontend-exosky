@@ -48,3 +48,18 @@ div#UI {
 #constellation-mode button:hover {
     background-color: #ddd;
 }
+
+.star-details {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 200px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+    color: white;
+    border: 1px solid #fff;
+    font-family: Arial, sans-serif;
+    z-index: 1000; /* Ensure it's on top of other elements */
+    border-radius: 8px;
+}
+

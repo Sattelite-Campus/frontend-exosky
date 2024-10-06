@@ -52,6 +52,21 @@ export function showDetails(event, camera) {
   }
 
   const starData = intersects[0].userData;
-  
+
+  function renderDetails(){
+    const detailsDiv = document.querySelector('.star-details');
+    detailsDiv.innerHTML = '';
+    for (const [key, value] of Object.entries(starDetails)) {
+      const p = document.createElement('p');
+      p.innerHTML = `<strong>${key}:</strong> ${value}`;
+      detailsDiv.appendChild(p);
+    }
+  }
+
+  console.log(star);
+  //render details on top right corner
+  renderDetails(starDetails);
+
+
   return starData;
 }

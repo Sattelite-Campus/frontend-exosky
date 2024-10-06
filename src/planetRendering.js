@@ -10,7 +10,7 @@ import * as ConstMaker from "./constellationStar.js";
 import * as Buttons from './controlRendering.js';
 import { takeScreenshot } from "./screenshotHandling.js";
 import {screenshotButton} from "./controlRendering.js";
-import * as starDetails from './starDetails.js';
+import * as starDetails from "./starDetails.js";
 
 export function renderPlanet (filePath) {
 
