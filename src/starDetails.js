@@ -49,17 +49,26 @@ export function showDetails(event, camera) {
   }
 
   const star = intersects[0];
-  
-  //star into popup at cursor
-    const popup = document.querySelector('.star-popup');
-    popup.style.display = 'block';
-    popup.style.left = event.clientX + 'px';
-    popup.style.top = event.clientY + 'px';
-    popup.innerHTML = `
-        <h2>${star.object.name}</h2>
-        <p>Temperature: ${star.object.userData.temperature}K</p>
-        <p>Mass: ${star.object.userData.mass}M</p>
-        <p>Radius: ${star.object.userData.radius}R</p>
-    `;
+
+  function renderDetails(){
+    const detailsDiv = document.querySelector('.star-details');
+    detailsDiv.innerHTML = '';
+    for (const [key, value] of Object.entries(starDetails)) {
+      const p = document.createElement('p');
+      p.innerHTML = `<strong>${key}:</strong> ${value}`;
+      detailsDiv.appendChild(p);
+    }
+  }
+
+  //list of details shown in rectangle top right corner
+  const starDetails = {
+      "Name": star.object.name,
+      "Distance": star.object.position.distanceTo(camera.position).toFixed(2),
+      "Position": `(${star.object.position.x.toFixed(2)}, ${star.object.position.y.toFixed(2)}, ${star.object.position.z.toFixed(2)})`
+  };
+  console.log(star);
+  //render details on top right corner
+  renderDetails(starDetails);
+
 
 }
