@@ -9,13 +9,14 @@ export function compileStarData(starData) {
     var material = new THREE.MeshBasicMaterial({
         color: new THREE.Color(1, 1, 1,),
         opacity: 0,
-        transparent: true,
+        // transparent: true,
         depthWrite: false  // Disable depth write so the sphere is always rendered on top
     });
 
     var starMesh = new THREE.Mesh(geometry, material);
     starMesh.position.set(star.pos.x, star.pos.y, star.pos.z);  // Set the position of the sphere
     starMesh.userData = star;
+    
     stars.push(starMesh);
   });
   return stars;
@@ -51,7 +52,7 @@ export function showDetails(event, camera) {
     return false;
   }
 
-  const starData = intersects[0].userData;
+  const starData = intersects[0].object.userData;
 
   function renderDetails(){
     const detailsDiv = document.querySelector('.star-details');
