@@ -150,7 +150,7 @@ export function renderPlanet (filePath) {
         gl_Position = projectionMatrix * mvPosition;
     }
 `;
-
+(ra * dec) % 148
     var fragmentShader = `
     uniform sampler2D pointTexture;
     varying vec3 vColor;
@@ -192,9 +192,25 @@ export function renderPlanet (filePath) {
     var planetDistances = {};
 
     function loadFloor() {
+<<<<<<< HEAD
         // Create a large sphere to act as a planet
         const planetRadius = 9950;
         const geometry = new THREE.SphereGeometry(planetRadius, 64, 64);
+=======
+        //fetch planet data
+        fetch('Data\\planet_data.json', {mode: 'no-cors'})
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(planet => {
+                    //name : distance pair
+                    planetDistances[planet.name] = [planet.ra, planet.dec];
+                });
+                console.log(planetDistances);
+            })
+            .catch(error => console.error('Error loading planet data:', error));
+
+        var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);
+>>>>>>> d743753d12f0d7f4b847b282d5d76018b00c7aa6
     
         // Load texture image for the planet's surface
         const texture = new THREE.TextureLoader().load('../Textures/Gaseous1.png');
@@ -232,6 +248,20 @@ export function renderPlanet (filePath) {
     
     
     
+
+    function renderAtmosphere() {
+        var geometry = new THREE.CylinderGeometry(995, 995, 100, 64);
+        var material = new THREE.MeshBasicMaterial({
+            color: new THREE.color(1, 1, 1),
+            transparent: true,
+            opacity: 0.1
+        });
+        const atmos = new THREE.Mesh(geometry, material);
+        atmos.position.set(0, 0, 50)
+        atmos.position.set(0, -102, 0);  // Set X and Z to 0 for centering
+        atmos.name = "Atmosphere";
+        return atmos;
+    }
 
     function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
         var lineMaterial = new THREE.LineBasicMaterial({
@@ -343,6 +373,7 @@ export function renderPlanet (filePath) {
 
     loadFloor();
     loadSkySphere();
+    scene.add(loadSkySphere());
 
     var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
     const maxRotationSpeed = 0.001
@@ -447,7 +478,7 @@ export function renderPlanet (filePath) {
     // Add event listener for window resize
     window.addEventListener('resize', onWindowResize, false);
 
-    window.addEventListener('mousemove', (event) => starDetails.showDetails(event, camera));
+    // window.addEventListener('mousemove', (event) => starDetails.showDetails(event, camera));
 
     animate();
 
