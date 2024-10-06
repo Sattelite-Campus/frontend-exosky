@@ -196,13 +196,17 @@ export function renderPlanet (filePath) {
         return candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : null;
     }
 
+    var allLines = [];
     function drawLineBetweenStars(star1, star2, material) {
         var lineGeometry = new THREE.BufferGeometry();
         const lineVertices = new Float32Array([star1.x, star1.y, star1.z, star2.x, star2.y, star2.z]);
         lineGeometry.setAttribute('position', new THREE.BufferAttribute(lineVertices, 3));
         var line = new THREE.Line(lineGeometry, material);
+        allLines.push(line);
         scene.add(line);
     }
+
+    var stars;
 
     fetch(filePath, {mode: 'no-cors'})
         .then(response => response.json())
@@ -213,7 +217,7 @@ export function renderPlanet (filePath) {
             starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
             starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
             starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));  // Pass color data
-            var stars = new THREE.Points(starGeometry, starMaterial);
+            stars = new THREE.Points(starGeometry, starMaterial);
             scene.add(stars);
 
             // Create dynamic constellations
@@ -223,11 +227,18 @@ export function renderPlanet (filePath) {
 
     loadFloor();
     loadSkySphere();
+    
+    var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
+    var rotationSpeed = 0.001;  // Adjust speed of rotation
 
     function animate() {
         requestAnimationFrame(animate);
+        stars.rotateOnAxis(rotationAxis, rotationSpeed);
+        allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
         composer.render();
     }
+
+    //get sun mark it as green
 
     animate();
 }
