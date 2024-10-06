@@ -13,14 +13,14 @@ export function renderPlanet (filePath) {
 
 // Set up the camera
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000);
-    camera.position.set(0, 0, 100);
+    camera.position.set(100, 0, 100);  // Starting position
 
 // Set up the WebGL renderer
     var renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-// Orbit Controls Setup
+// Orbit Controls Setup (allowing free camera movement)
     createControls(camera, renderer);
 
 // Bloom effect setup
@@ -57,7 +57,6 @@ export function renderPlanet (filePath) {
 
     function createStar(ra, dec, mag_b, mag_v) {
         const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), .9), 0.3)); // Dynamic size calculation lum ranges from -10 to 20
-        // Create a star object and store positions and sizes
         var position = radecToCartesian(ra, dec, 1000);
         starPositions.push(position.x, position.y, position.z);
         starSizes.push(size);
@@ -99,7 +98,6 @@ export function renderPlanet (filePath) {
     }
 `;
 
-
 // Create the geometry for stars
     var starGeometry = new THREE.BufferGeometry();
     var starMaterial = new THREE.ShaderMaterial({
@@ -139,10 +137,10 @@ export function renderPlanet (filePath) {
         });
         var plane = new THREE.Mesh(geometry, material);
         plane.position.y = -102;
+        plane.name = "floor";
         scene.add(plane);
     }
 
-// Function to draw dynamic constellations
 function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
     var lineMaterial = new THREE.LineBasicMaterial({
             color: 0x777777,
@@ -164,29 +162,24 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
             }
         }
 
-        var selectedStartStars = selectUniqueStartStars(vertices, 20, maxConstellationDistance);  // Enforce separation
+        var selectedStartStars = selectUniqueStartStars(vertices, 20, maxConstellationDistance);
         selectedStartStars.forEach(startStar => createBranch(startStar, 0, maxDepth));
     }
 
-// Select unique starting points with a maximum distance constraint
     function selectUniqueStartStars(vertices, count, maxConstellationDistance) {
         let selectedStars = [];
-
         for (let attempts = 0; attempts < 5 * count && selectedStars.length < count; attempts++) {
             let candidateStar = vertices[Math.floor(Math.random() * vertices.length)];
-
-            // Ensure candidate star is sufficiently far from other constellation centers
             let isFar = constellationCenters.every(center => center.distanceTo(candidateStar) > maxConstellationDistance);
 
             if (isFar) {
                 selectedStars.push(candidateStar);
-                constellationCenters.push(candidateStar);  // Track this constellation's center
+                constellationCenters.push(candidateStar);
             }
         }
         return selectedStars;
     }
 
-// Filter to find a suitable nearby star for better shapes
     function getFilteredNearbyStar(currentStar, threshold, vertices) {
         let candidates = vertices.filter(star =>
             star !== currentStar &&
@@ -218,29 +211,33 @@ function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, dist
             });
             starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
             starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
-            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));  // Pass color data
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
             stars = new THREE.Points(starGeometry, starMaterial);
             scene.add(stars);
 
-            // Create dynamic constellations
             drawDynamicConstellations(starVertices);
         })
         .catch(error => console.error('Error loading planet data:', error));
 
     loadFloor();
     loadSkySphere();
-    
+
     var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
-    var rotationSpeed = 0.001;  // Adjust speed of rotation
+    var rotationSpeed = 0.001;
+    var orbitRadius = 100;
+    var orbitSpeed = 0.01;
 
     function animate() {
         requestAnimationFrame(animate);
         stars.rotateOnAxis(rotationAxis, rotationSpeed);
         allLines.forEach(line => line.rotateOnAxis(rotationAxis, rotationSpeed));
+
+        // Orbit the floor around the origin
+        scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
+        scene.getObjectByName("floor").position.z = orbitRadius * Math.sin(Date.now() * orbitSpeed / 1000);
+
         composer.render();
     }
-
-    //get sun mark it as green
 
     animate();
 }
