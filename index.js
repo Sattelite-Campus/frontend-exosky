@@ -200,7 +200,7 @@ fetch('Data\\star_data2.json', { mode: 'no-cors' })
         });
         starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
         starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
-        // starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));  // Pass color data
+        starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));  // Pass color data
         var stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
 
