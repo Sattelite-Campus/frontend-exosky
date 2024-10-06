@@ -192,24 +192,20 @@ export function renderPlanet (filePath) {
     var planetDistances = {};
 
     function loadFloor() {
-        //fetch planet data
-        fetch('planet_data_real.json', {mode: 'no-cors'})
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(planet => {
-                    //name : distance pair
-                    planetDistances[planet.name] = planet.dist;
-                });
-            })
-            .catch(error => console.error('Error loading planet data:', error));
         var geometry = new THREE.CylinderGeometry(995, 995, 1, 64);
+    
+        // Load texture image for the floor
+        var texture = new THREE.TextureLoader().load('../Textures/Gaseous1.png'); // Replace with your image path
+    
+        // Create a material using the loaded texture
         var material = new THREE.MeshBasicMaterial({
-            color: 0x8B4513,
+            map: texture,
             side: THREE.DoubleSide,
             transparent: false,
             opacity: 1,
             depthWrite: true
         });
+    
         var plane = new THREE.Mesh(geometry, material);
         plane.position.set(0, -102, 0);  // Set X and Z to 0 for centering
         plane.name = "floor";
