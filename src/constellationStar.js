@@ -25,20 +25,17 @@ export function compileStarData(starData) {
     return const_stars;
 }
 
-export function showStars() {
-    // Show Star Halo's
-    const_stars.forEach(star => {
-        star.material.color.setRGB(1,.5,.5);
-        star.material.opacity = 0.5;
+export function showStars(scene) {
+    stars.forEach(star => {
+        scene.add(star);  // Ensure each star is added back to the scene
+        star.visible = true;  // Make the star visible
     });
-
 }
 
-export function hideStars() {
-    // Disable Star Halo's
-    const_stars.forEach(star => {
-        star.material.color.setRGB(1,.5,.5);
-        star.material.opacity = 0;
+export function hideStars(scene) {
+    stars.forEach(star => {
+        scene.remove(star);  // Explicitly remove each star from the scene
+        star.visible = false;  // Set visibility to false as an extra safeguard
     });
 }
 

@@ -10,6 +10,7 @@ export const exitButton = document.getElementById("exit");
 
 export const showCameraButton = document.getElementById("show-camera");
 export const screenshotButton = document.getElementById("screenshot");
+export const showDetailsButton = document.getElementById("show-details");
 
 export function setupButtons() {
 
