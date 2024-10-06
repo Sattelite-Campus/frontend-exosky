@@ -350,6 +350,7 @@ export function renderPlanet (filePath) {
         if (stars && constellationStars.length > 0) {
             handleRotate();
         }
+        // COMPUTATIONAL COP-OUT BC GEODESICS WERE TOO EXPENSIVE
 
         // Orbit the floor around the origin
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
