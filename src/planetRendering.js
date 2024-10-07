@@ -470,7 +470,10 @@ export function renderPlanet (filePath) {
 
     Buttons.screenshotButton.addEventListener('click', () => {
         if(screenshotButton.classList.contains('active')) {
+            const storyBoard = document.getElementById('constellation-story');
             stopRotation();
+            storyBoard.style.visibility = "visible";
+            story = true;
             takeScreenshot(renderer);
         }
     });
