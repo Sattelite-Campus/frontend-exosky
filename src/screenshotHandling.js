@@ -1,5 +1,5 @@
 //functions for screenshotting the DOM and saving it
-
+import { marked } from 'marked'; // markdown stuff
 import html2canvas from "html2canvas";
 import {screenshotButton, showCameraButton} from "./controlRendering.js";
 
@@ -90,8 +90,10 @@ function sendScreenshotToBackend(blob) {
         .then(data => {
             const storyBoard = document.getElementById('constellation-story');
             console.log('Generated text:', data.message);
-            storyBoard.innerHTML = `
-            <p>${data.message}</p>`;
+            // Use this line to convert markdown to HTML before setting it to the innerHTML
+            const parsedMessage = marked(data.message);
+            storyBoard.innerHTML = `<p>${parsedMessage}</p>`;
+
         })
         .catch(error => {
             console.error('Error generating text:', error);
