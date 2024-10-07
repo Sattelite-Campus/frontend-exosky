@@ -38,6 +38,10 @@ export function takeScreenshot(renderer) {
     img.src = dataURL;
     console.log(dataURL);
 
+    const storyBoard = document.getElementById('constellation-story');
+    storyBoard.innerHTML = `
+    <p>Loading Constellation Story</p>`;
+
     offScreenCanvas.toBlob((blob) => {
         // Call a function to send this Blob to the backend server
         sendScreenshotToBackend(blob);
@@ -85,6 +89,9 @@ function sendScreenshotToBackend(blob) {
             return response.json();
         })
         .then(data => {
+            const storyBoard = document.getElementById('constellation-story');
+            storyBoard.innerHTML = `
+            <p>${data.message}</p>`;
             console.log('Generated text:', data.message);
         })
         .catch(error => {

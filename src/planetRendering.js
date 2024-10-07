@@ -468,6 +468,7 @@ export function renderPlanet (filePath) {
 
     Buttons.screenshotButton.addEventListener('click', () => {
         if(screenshotButton.classList.contains('active')) {
+            stopRotation();
             takeScreenshot(renderer);
         }
     });
