@@ -328,7 +328,6 @@ export function renderPlanet (filePath) {
             // console.log(data);
             const starsData = JSON.parse(data.stars);
             const keyList = Object.keys(starsData);
-// Step 3: Access the declination value of the specific star with key "418"
 
             keyList.forEach(key => {
                 var starData = starsData[key];
@@ -362,7 +361,6 @@ export function renderPlanet (filePath) {
             })
         })
         .catch(error => console.error('Error loading planet data:', error));
-
     loadFloor();
     loadSkySphere();
 
@@ -474,7 +472,10 @@ export function renderPlanet (filePath) {
 
     Buttons.screenshotButton.addEventListener('click', () => {
         if(screenshotButton.classList.contains('active')) {
+            const storyBoard = document.getElementById('constellation-story');
             stopRotation();
+            storyBoard.style.visibility = "visible";
+            story = true;
             takeScreenshot(renderer);
         }
     });
@@ -491,4 +492,16 @@ export function renderPlanet (filePath) {
         }
     });
 
+    let story = false;
+    Buttons.showStoryButton.addEventListener('click', () => {
+        const storyBoard = document.getElementById('constellation-story');
+        if (!story) {
+            storyBoard.style.visibility = "visible";
+            story = true;
+        } else {
+            storyBoard.style.visibility = "hidden";
+            story = false;
+        }
+    })
+    
 }
