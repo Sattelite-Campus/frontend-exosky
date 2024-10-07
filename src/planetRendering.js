@@ -43,8 +43,8 @@ export function renderPlanet (filePath) {
     composer.addPass(new RenderPass(scene, camera));
     var bloomPass = new UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        2,   // intensity of bloom
-        1.3, // radius for bloom spread
+        0.03,   // intensity of bloom
+        0.15, // radius for bloom spread
         0.6  // threshold for bloom effect
     );
     composer.addPass(bloomPass);
@@ -324,38 +324,42 @@ export function renderPlanet (filePath) {
     })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
-            console.log(data.stars);
-            console.log(data.planet);
-            // data.forEach(star => {
-            //     createStar(star.ra, star.dec, star.mag_b, star.mag_v, star.st_temp, star.st_mass, star.st_lum);
-            //     if (star.mag_b + star.mag_v < 13) {
-            //         const pos = radecToCartesian(star.ra, star.dec, 1000);
-            //         brightStars.push({
-            //             "name" : star.host_name,
-            //             "dist" : star.sy_dist,
-            //             "pos": pos,
-            //             "mag_b": star.mag_b,
-            //             "mag_v": star.mag_v,
-            //             "temp": star.st_temp,
-            //             "lum": star.st_lum
-            //         });
-            //     }
-            // });
-            // starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-            // starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
-            // starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
-            // stars = new THREE.Points(starGeometry, starMaterial);
-            // if(stars) {
-            //     scene.add(stars);
-            // }
-            // drawDynamicConstellations(starVertices);
-            // detailedStars = starDetails.compileStarData(brightStars);
-            // detailedStars.forEach(star => scene.add(star));
-            // starDetails.hideStars();
-            // constellationStars = constMaker.compileStarData(brightStars);
-            // constellationStars.forEach(star => scene.add(star));
-            // constMaker.hideStars();
+            console.log("DATA FOUND");
+            // console.log(data);
+            const starsData = JSON.parse(data.stars);
+            const keyList = Object.keys(starsData);
+// Step 3: Access the declination value of the specific star with key "418"
+
+            keyList.forEach(key => {
+                var starData = starsData[key];
+                createStar(starData.ra, starData.dec, starData.sy_bmag, starData.sy_vmag, starData.st_teff, starData.st_mass, starData.st_lum);
+                if (starData.sy_bmag + starData.sy_vmag < 13) {
+                    const pos = radecToCartesian(starData.ra, starData.dec, 1000);
+                    brightStars.push({
+                        "name" : starData.sy_name,
+                        "dist" : starData.sy_dist,
+                        "pos": pos,
+                        "mag_b": starData.sy_bmag,
+                        "mag_v": starData.sy_vmag,
+                        "temp": starData.st_teff,
+                        "lum": starData.st_lum
+                    });
+                }
+                starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+                starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
+                starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+                stars = new THREE.Points(starGeometry, starMaterial);
+                if(stars) {
+                    scene.add(stars);
+                }
+                drawDynamicConstellations(starVertices);
+                detailedStars = starDetails.compileStarData(brightStars);
+                detailedStars.forEach(star => scene.add(star));
+                starDetails.hideStars();
+                constellationStars = constMaker.compileStarData(brightStars);
+                constellationStars.forEach(star => scene.add(star));
+                constMaker.hideStars();
+            })
         })
         .catch(error => console.error('Error loading planet data:', error));
 
