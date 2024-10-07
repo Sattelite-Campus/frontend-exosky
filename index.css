@@ -63,3 +63,24 @@ div#UI {
     border-radius: 8px;
 }
 
+.constellation-story {
+    position: absolute;
+    width: 90%;
+    height: 20%;
+    bottom: 7%;
+    text-align: center;
+    margin-left: 5%;
+    font: message-box;
+    font-size: 25px;
+    color: black;
+    opacity: 80%;
+    background-color: lightgray;
+    border-radius: 5px;
+    outline-color: 5px black;
+    overflow: auto;
+    visibility: hidden;
+}
+
+.constellation-story::-webkit-scrollbar {
+    display: none;
+}

@@ -485,4 +485,16 @@ export function renderPlanet (filePath) {
         }
     });
 
+    let story = false;
+    Buttons.showStoryButton.addEventListener('click', () => {
+        const storyBoard = document.getElementById('constellation-story');
+        if (!story) {
+            storyBoard.style.visibility = "visible";
+            story = true;
+        } else {
+            storyBoard.style.visibility = "hidden";
+            story = false;
+        }
+    })
+    
 }
