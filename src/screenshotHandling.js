@@ -39,8 +39,7 @@ export function takeScreenshot(renderer) {
     console.log(dataURL);
 
     const storyBoard = document.getElementById('constellation-story');
-    storyBoard.innerHTML = `
-    <p>Loading Constellation Story</p>`;
+    // storyBoard.innerHTML = `<p>Loading Constellation Story</p>`;
 
     offScreenCanvas.toBlob((blob) => {
         // Call a function to send this Blob to the backend server
@@ -90,9 +89,9 @@ function sendScreenshotToBackend(blob) {
         })
         .then(data => {
             const storyBoard = document.getElementById('constellation-story');
+            console.log('Generated text:', data.message);
             storyBoard.innerHTML = `
             <p>${data.message}</p>`;
-            console.log('Generated text:', data.message);
         })
         .catch(error => {
             console.error('Error generating text:', error);

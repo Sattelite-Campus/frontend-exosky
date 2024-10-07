@@ -314,7 +314,7 @@ export function renderPlanet (filePath) {
 
     //filePath is the planetName
 
-    fetch("http://exosky-backend.eastus.cloudapp.azure.com:5000/render?index=" + filePath, {
+    fetch(filePath, {
         method: 'GET',
         mode: 'cors',  // This allows handling of the response if the server supports it
         headers: {
@@ -327,35 +327,35 @@ export function renderPlanet (filePath) {
             console.log(data);
             console.log(data.stars);
             console.log(data.planet);
-            // data.forEach(star => {
-            //     createStar(star.ra, star.dec, star.mag_b, star.mag_v, star.st_temp, star.st_mass, star.st_lum);
-            //     if (star.mag_b + star.mag_v < 13) {
-            //         const pos = radecToCartesian(star.ra, star.dec, 1000);
-            //         brightStars.push({
-            //             "name" : star.host_name,
-            //             "dist" : star.sy_dist,
-            //             "pos": pos,
-            //             "mag_b": star.mag_b,
-            //             "mag_v": star.mag_v,
-            //             "temp": star.st_temp,
-            //             "lum": star.st_lum
-            //         });
-            //     }
-            // });
-            // starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-            // starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
-            // starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
-            // stars = new THREE.Points(starGeometry, starMaterial);
-            // if(stars) {
-            //     scene.add(stars);
-            // }
-            // drawDynamicConstellations(starVertices);
-            // detailedStars = starDetails.compileStarData(brightStars);
-            // detailedStars.forEach(star => scene.add(star));
-            // starDetails.hideStars();
-            // constellationStars = constMaker.compileStarData(brightStars);
-            // constellationStars.forEach(star => scene.add(star));
-            // constMaker.hideStars();
+            data.forEach(star => {
+                createStar(star.ra, star.dec, star.mag_b, star.mag_v, star.st_temp, star.st_mass, star.st_lum);
+                if (star.mag_b + star.mag_v < 13) {
+                    const pos = radecToCartesian(star.ra, star.dec, 1000);
+                    brightStars.push({
+                        "name" : star.host_name,
+                        "dist" : star.sy_dist,
+                        "pos": pos,
+                        "mag_b": star.mag_b,
+                        "mag_v": star.mag_v,
+                        "temp": star.st_temp,
+                        "lum": star.st_lum
+                    });
+                }
+            });
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+            starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+            stars = new THREE.Points(starGeometry, starMaterial);
+            if(stars) {
+                scene.add(stars);
+            }
+            drawDynamicConstellations(starVertices);
+            detailedStars = starDetails.compileStarData(brightStars);
+            detailedStars.forEach(star => scene.add(star));
+            starDetails.hideStars();
+            constellationStars = constMaker.compileStarData(brightStars);
+            constellationStars.forEach(star => scene.add(star));
+            constMaker.hideStars();
         })
         .catch(error => console.error('Error loading planet data:', error));
 
