@@ -43,9 +43,9 @@ export function renderPlanet (filePath) {
     composer.addPass(new RenderPass(scene, camera));
     var bloomPass = new UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.03,   // intensity of bloom
-        0.15, // radius for bloom spread
-        0.6  // threshold for bloom effect
+        4.2,   // intensity of bloom
+        1.3, // radius for bloom spread
+        0.44  // threshold for bloom effect
     );
     composer.addPass(bloomPass);
 
@@ -197,7 +197,7 @@ export function renderPlanet (filePath) {
         const geometry = new THREE.SphereGeometry(planetRadius, 64, 64);
     
         // Load texture image for the planet's surface
-        const texture = new THREE.TextureLoader().load('../Textures/Gaseous2.png');
+        const texture = new THREE.TextureLoader().load('../Textures/Gaseous1.png');
         
         // Use MeshBasicMaterial to ensure no lighting interaction
         const material = new THREE.MeshBasicMaterial({
@@ -218,7 +218,7 @@ export function renderPlanet (filePath) {
     
         // Adjust the camera position to simulate standing on the surface of the planet
         camera.position.set(0, 0, 100);  // Place the camera on the surface of the sphere along the Z-axis
-        camera.lookAt(planet.position);  // Make the camera look towards the center of the sphere
+        // camera.lookAt(planet.position);  
     
         // Adjust renderer settings to prevent overexposure or bloom
         if (renderer) {
@@ -335,8 +335,8 @@ export function renderPlanet (filePath) {
                 if (starData.sy_bmag + starData.sy_vmag < 13) {
                     const pos = radecToCartesian(starData.ra, starData.dec, 1000);
                     brightStars.push({
-                        "name" : starData.sy_name,
-                        "dist" : starData.sy_dist,
+                        "name": starData.sy_name,
+                        "dist": starData.sy_dist,
                         "pos": pos,
                         "mag_b": starData.sy_bmag,
                         "mag_v": starData.sy_vmag,
@@ -344,26 +344,26 @@ export function renderPlanet (filePath) {
                         "lum": starData.st_lum
                     });
                 }
-                starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-                starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
-                starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
-                stars = new THREE.Points(starGeometry, starMaterial);
-                if(stars) {
-                    scene.add(stars);
-                }
-                drawDynamicConstellations(starVertices);
-                detailedStars = starDetails.compileStarData(brightStars);
-                detailedStars.forEach(star => scene.add(star));
-                starDetails.hideStars();
-                constellationStars = constMaker.compileStarData(brightStars);
-                constellationStars.forEach(star => scene.add(star));
-                constMaker.hideStars();
-            })
+            });
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+            starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+            stars = new THREE.Points(starGeometry, starMaterial);
+            if(stars) {
+                scene.add(stars);
+            }
+            drawDynamicConstellations(starVertices);
+            detailedStars = starDetails.compileStarData(brightStars);
+            detailedStars.forEach(star => scene.add(star));
+            starDetails.hideStars();
+            constellationStars = constMaker.compileStarData(brightStars);
+            constellationStars.forEach(star => scene.add(star));
+            constMaker.hideStars();
+            console.log("Meow");
         })
         .catch(error => console.error('Error loading planet data:', error));
     loadFloor();
     loadSkySphere();
-
     var rotationAxis = new THREE.Vector3(0.3977, 0.9175, 0);
     const maxRotationSpeed = 0.001
     var rotationSpeed = maxRotationSpeed;
