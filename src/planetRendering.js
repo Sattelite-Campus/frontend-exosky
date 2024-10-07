@@ -6,7 +6,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { periodToRotationSpeed, getAxialTilt} from "./rotationalFunctions.js";
 
-import * as ConstMaker from "./constellationStar.js";
+import * as constMaker from "./constellationStar.js";
 import * as Buttons from './controlRendering.js';
 import { takeScreenshot } from "./screenshotHandling.js";
 import {screenshotButton} from "./controlRendering.js";
@@ -308,8 +308,8 @@ export function renderPlanet (filePath) {
     var stars;
     var brightStars = [];
     var constellationStars = [];
+    var detailedStars = [];
 
-    var showDetails = false;
     fetch(filePath, {mode: 'no-cors'})
         .then(response => response.json())
         .then(data => {
@@ -337,9 +337,12 @@ export function renderPlanet (filePath) {
                 scene.add(stars);
             }
             drawDynamicConstellations(starVertices);
-            starDetails.compileStarData(brightStars).forEach(mesh => scene.add(mesh));
-            constellationStars = ConstMaker.compileStarData(brightStars);
-
+            detailedStars = starDetails.compileStarData(brightStars);
+            detailedStars.forEach(star => scene.add(star));
+            starDetails.hideStars();
+            constellationStars = constMaker.compileStarData(brightStars);
+            constellationStars.forEach(star => scene.add(star));
+            constMaker.hideStars();
         })
         .catch(error => console.error('Error loading planet data:', error));
 
@@ -376,22 +379,21 @@ export function renderPlanet (filePath) {
 
         composer.render();
     }
-    let constellation = false;
 
-
+    let is_rotate_locked = false;
 
     Buttons.toggleButton.addEventListener('click', () => {
         resetRotation();
         stopRotation();
-        if (!constellation) {
-            constellation = true;
+        if (!is_rotate_locked) {
+            is_rotate_locked = true;
             const constMode = document.getElementById("constellation-mode");
             constMode.style.display = "block";
-            ConstMaker.showStars();            
+            constMaker.showStars();            
 
             // event listener for mouse clicks
-            window.addEventListener('click', (event) => ConstMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
-            window.addEventListener('contextmenu', () => ConstMaker.onRightClick(scene)) // contextmenu <=> right-click
+            window.addEventListener('click', (event) => constMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
+            window.addEventListener('contextmenu', () => constMaker.onRightClick(scene)) // contextmenu <=> right-click
         }
     });
 
@@ -401,25 +403,25 @@ export function renderPlanet (filePath) {
 
     function exitConstMaker() {
         //Remove ActionEvents
-        window.removeEventListener('click', (event) => ConstMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
-        window.removeEventListener('contextmenu', () => ConstMaker.onRightClick(scene)) // contextmenu <=> right-click
+        window.removeEventListener('click', (event) => constMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
+        window.removeEventListener('contextmenu', () => constMaker.onRightClick(scene)) // contextmenu <=> right-click
     
-        ConstMaker.resetConstMaker(scene);
-        ConstMaker.hideStars();
+        constMaker.resetConstMaker(scene);
+        constMaker.hideStars(scene);
 
         const constMode = document.getElementById("constellation-mode");
         constMode.style.display = "none";
 
-        constellation = false;
+        is_rotate_locked = false;
     }
 
     Buttons.saveButton.addEventListener('click', () => {
-        ConstMaker.saveConst();
+        constMaker.saveConst();
         exitConstMaker();
     });
 
     Buttons.startButton.addEventListener('click', () => {
-        if (!constellation) {
+        if (!is_rotate_locked) {
             rotationSpeed = maxRotationSpeed;
         }
     });
@@ -460,14 +462,15 @@ export function renderPlanet (filePath) {
     });
 
     Buttons.showDetailsButton.addEventListener('click', () => {
-        if (showDetails) {
-            showDetails = false;
-            ConstMaker.hideStars(scene);
+        stopRotation();
+        resetRotation();
+        if (!is_rotate_locked) {
+            starDetails.showStars();
+            is_rotate_locked = true;
         } else {
-            showDetails = true;
-            ConstMaker.showStars(scene);
+            starDetails.hideStars();
+            is_rotate_locked = false;
         }
-        console.log(showDetails);
     });
 
 }

@@ -7,10 +7,10 @@ export function compileStarData(starData) {
   starData.forEach(star => {
     var geometry = new THREE.SphereGeometry(20, 32, 32);  // Creates a sphere with the given radius
     var material = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(1, 1, 1,),
-        opacity: 0,
-        // transparent: true,
-        depthWrite: false  // Disable depth write so the sphere is always rendered on top
+      color: new THREE.Color(1, 1, 1,),
+      transparent: true,
+      opacity: 0.5,  // Transparency for the sphere
+      depthWrite: false  // Disable depth write so the sphere is always rendered on top
     });
 
     var starMesh = new THREE.Mesh(geometry, material);
@@ -23,11 +23,11 @@ export function compileStarData(starData) {
 }
 
 export function showStars() {
-  stars.forEach(star => star.material.transparent = false);
+  stars.forEach(star => star.visible = true);
 }
 
 export function hideStars() {
-  stars.forEach(star => star.material.transparent = true);
+  stars.forEach(star => star.visible = false);
 }
 
 // Display details of the star the mouse is hovered over
@@ -64,8 +64,6 @@ export function showDetails(event, camera) {
     }
   }
 
-  console.log(starData);
-  //render details on top right corner
   renderDetails(starData);
 
 
