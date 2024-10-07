@@ -313,6 +313,7 @@ export function renderPlanet (filePath) {
     fetch(filePath, {mode: 'no-cors'})
         .then(response => response.json())
         .then(data => {
+            console.log(data);
             data.forEach(star => {
                 createStar(star.ra, star.dec, star.mag_b, star.mag_v, star.st_temp, star.st_mass, star.st_lum);
                 if (star.mag_b + star.mag_v < 13) {

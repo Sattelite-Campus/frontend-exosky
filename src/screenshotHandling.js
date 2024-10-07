@@ -67,6 +67,24 @@ function sendScreenshotToBackend(blob) {
             console.error('Error uploading image:', error);
         });
 
+    fetch('http://exosky-backend.eastus.cloudapp.azure.com:5000/generate_image?city=toronto&country=canada', {
+        method: 'GET',
+        mode: 'cors'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Generated text:', data.message);
+        })
+        .catch(error => {
+            console.error('Error generating text:', error);
+        });
+
+
 }
 
 //draw rectangle in middle of screen showing what gets screenshotted

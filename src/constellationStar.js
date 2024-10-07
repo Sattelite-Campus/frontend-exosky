@@ -76,8 +76,6 @@ export function onLeftClick(event, camera, drawLineBetweenStars) {
             );
         } 
     }
-    console.log();
-    
 }
 
 export function onRightClick(scene) {
