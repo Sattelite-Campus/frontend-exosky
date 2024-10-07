@@ -81,6 +81,6 @@ div#UI {
     visibility: hidden;
 }
 
-.constellation-story::-webkit-scrollbar {
+/* .constellation-story::-webkit-scrollbar {
     display: none;
-}
+} */
