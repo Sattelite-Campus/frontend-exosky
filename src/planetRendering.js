@@ -310,7 +310,18 @@ export function renderPlanet (filePath) {
     var constellationStars = [];
     var detailedStars = [];
 
-    fetch(filePath, {mode: 'no-cors'})
+    var index = 0;
+
+    //filePath is the planetName
+
+    fetch(filePath, {
+        method: 'GET',
+        mode: 'cors',  // This allows handling of the response if the server supports it
+        headers: {
+            'Accept': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        }
+    })
         .then(response => response.json())
         .then(data => {
             console.log(data);

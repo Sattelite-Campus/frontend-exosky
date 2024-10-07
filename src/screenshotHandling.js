@@ -51,7 +51,11 @@ function sendScreenshotToBackend(blob) {
     fetch('http://exosky-backend.eastus.cloudapp.azure.com:5000/upload', {
         method: 'POST',
         body: formData,
-        mode: 'no-cors'  // Use 'cors' mode to allow interaction with the response, if your server supports it
+        mode: 'cors',  // Use 'cors' to handle the response
+        headers: {
+            'Accept': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        }
     })
         .then(response => {
             if (!response.ok) {
@@ -61,7 +65,6 @@ function sendScreenshotToBackend(blob) {
         })
         .then(data => {
             console.log('Image uploaded successfully:', data);
-            // Now you can process the image further using GPT on the backend
         })
         .catch(error => {
             console.error('Error uploading image:', error);
@@ -69,7 +72,11 @@ function sendScreenshotToBackend(blob) {
 
     fetch('http://exosky-backend.eastus.cloudapp.azure.com:5000/generate_image?city=toronto&country=canada', {
         method: 'GET',
-        mode: 'cors'
+        mode: 'cors',  // This allows handling of the response if the server supports it
+        headers: {
+            'Accept': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        }
     })
         .then(response => {
             if (!response.ok) {

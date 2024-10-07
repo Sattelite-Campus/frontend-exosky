@@ -11,8 +11,6 @@ const pathSegments = path.split('/');
 
 const planetName = pathSegments[1];
 
-console.log(planetName);
-
 
 // //fetch planet name
 // fetch ("", {
@@ -36,5 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupButtons();  // Initialize the buttons
     // You can also call the rendering function here
     renderPlanet("Data\\star_data3.json");
+    // renderPlanet(planetName);
     handleGPT();
 });
