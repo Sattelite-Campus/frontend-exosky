@@ -13,6 +13,8 @@ export const screenshotButton = document.getElementById("screenshot");
 export const showStoryButton = document.getElementById("show-story");
 export const showDetailsButton = document.getElementById("show-details");
 
+export const showColourButton = document.getElementById("show-colour");
+
 export function setupButtons() {
 
     startButton.addEventListener("click", () => {

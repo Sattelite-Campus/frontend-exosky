@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+
+    
+
+      "source": "/api/upload",
+
+      "destination": "http://exosky-backend.eastus.cloudapp.azure.com:5000/upload"
+    },
+    {
+      "source": "/api/selector",
+      "destination": "http://exosky-backend.eastus.cloudapp.azure.com:5000/selector"
+    },
+    {
+      "source": "/api/render",
+      "destination": "http://exosky-backend.eastus.cloudapp.azure.com:5000/render"
+    },
+    {
+      "source": "/api/generate_image",
+      "destination": "http://exosky-backend.eastus.cloudapp.azure.com:5000/generate_image"
+    },
+    {
+      "source": "/api/generate_image_location",
+      "destination": "http://exosky-backend.eastus.cloudapp.azure.com:5000/generate_image?city=toronto&country=canada"
+    }
+
+  ]
+}

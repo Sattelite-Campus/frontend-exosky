@@ -14,6 +14,7 @@ import * as starDetails from "./starDetails.js";
 
 export function renderPlanet (filePath) {
 
+    var realisticBloom = true;
 // Create the main scene
     var scene = new THREE.Scene();
 
@@ -43,11 +44,35 @@ export function renderPlanet (filePath) {
     composer.addPass(new RenderPass(scene, camera));
     var bloomPass = new UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        4.2,   // intensity of bloom
-        1.3, // radius for bloom spread
-        0.44  // threshold for bloom effect
+        3.7,   // intensity of bloom DEFAULT 4.2
+        1.3, // radius for bloom spread DEFAULT 1.3
+        0.44  // threshold for bloom effect DEFAULT .44
     );
     composer.addPass(bloomPass);
+
+    function determinePass(realisticBloom){
+        composer.removePass(bloomPass);
+
+        if(realisticBloom){
+            bloomPass = new UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                4.2,   // intensity of bloom DEFAULT 4.2
+                1.3, // radius for bloom spread DEFAULT 1.3
+                0.44  // threshold for bloom effect DEFAULT .44
+            );
+            realisticBloom = false;
+        }
+        else {
+            bloomPass = new UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                17,   // intensity of bloom DEFAULT 4.2
+                1.3, // radius for bloom spread DEFAULT 1.3
+                0  // threshold for bloom effect DEFAULT .44
+            );
+            realisticBloom = true;
+        }
+        composer.addPass(bloomPass);
+    }
 
     renderer.setClearColor(0x000000);  // black background
     renderer.autoClear = false;
@@ -70,59 +95,72 @@ export function renderPlanet (filePath) {
     var starSizes = [];  // Array for dynamically calculated sizes
     var starVertices = [];  // Store positions for constellation creation
     var constellationCenters = [];  // Track constellation centers
-    let starColors = [];
+    let originalStarColours = []; // Bloom-affected colors
+    let tempStarColours = [];     // Colors from getRGBfromTemperature
 
     function createStar(ra, dec, mag_b, mag_v, st_temp, st_mass, st_lum) {
-        // Dynamic size calculation based on magnitudes
-        const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), 0.9), 0.3)); // Luminosity ranges from -10 to 20
+        const size = 55 * Math.pow(1.22, Math.min(-Math.pow(Math.max(0, (mag_b + mag_v) / 2), 0.9), 0.3));
         var position = radecToCartesian(ra, dec, 1000);
         starPositions.push(position.x, position.y, position.z);
-        starSizes.push(size);
         if ((mag_b + mag_v) < 16.5) {
             starVertices.push(position);
         }
-    
-        // Color assignment based on temperature or magnitude indices
+        starSizes.push(size);
+
         let r, g, b;
-    
-        // If the temperature is valid, compute the RGB color using blackbody radiation principles
+
+        // Original colors based on magnitude or bloom effects
+        const min_offset = 2;
+        const max = 2;
+        const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
+
+        r = Math.min(1, 0.8 * (0.5 - mag_index / max / 3.5));
+        g = Math.min(1, 0.6 * (0.01 + mag_index / max / 3));
+        b = Math.min(1, Math.pow(mag_index / max, 4));
+
+        // Store these as the original star colors (used when bloom is active)
+        originalStarColours.push(r, g, b);
+
+        // If temperature is valid, store temp-based RGB values
         if (st_temp > 0) {
-            // console.log("VALID RGB CALC");
             [r, g, b] = getRGBfromTemperature(st_temp);
         } else {
-            // Default behavior using magnitude indices when temperature is not available
-            const min_offset = 2; // A value to raise the smallest B-V values above 0
-            const max = 2; // The typical largest mag index you'd get, following the operations below
-            const mag_index = Math.min(max, Math.max(0, min_offset - (mag_b - mag_v)));
-    
-            // The RGB operations map the mag_index values (0 - max) evenly onto a color distribution ranging from dark red to light blue
-            r = Math.min(1, 0.8 * (0.5 - mag_index / max / 3.5));
-            g = Math.min(1, 0.6 * (0.01 + mag_index / max / 3));
-            b = Math.min(1, Math.pow(mag_index / max, 4));
+            [r, g, b] = [0.5, 0.5, 0.5]; // Fallback color for stars without temperature data
         }
-    
-        // Push the computed color to the starColors array
-        starColors.push(r, g, b);
+
+        // Store temperature-based colors
+        tempStarColours.push(r, g, b);
     }
-    
+
+    function handleStarColourSwitch(useTempColors) {
+        // Decide which array to use (either the bloom-based or temperature-based colors)
+        let selectedColors = useTempColors ? tempStarColours : originalStarColours;
+
+        // Update the color attribute of the star geometry
+        starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(selectedColors, 3));
+
+        // Update the scene by re-rendering it
+        composer.render();
+    }
+
     // Function to compute RGB from blackbody temperature
     function getRGBfromTemperature(temp) {
         // Define constants
         const h = 6.626e-34; // Planck's constant (J·s)
         const c = 3e8; // Speed of light (m/s)
         const k = 1.38e-23; // Boltzmann's constant (J/K)
-    
+
         // Sampled wavelengths for RGB components (in nanometers)
         const wavelengths = [440, 550, 675]; // Blue, Green, Red respectively
         const rgb = [0, 0, 0];
-    
+
         // Calculate intensity for each wavelength
         wavelengths.forEach((lambda, i) => {
             lambda *= 1e-9; // Convert nm to meters
             const intensity = (2 * h * c ** 2) / (lambda ** 5 * (Math.exp((h * c) / (lambda * k * temp)) - 1));
             rgb[i] = intensity;
         });
-    
+
         // Normalize the RGB values
         const maxVal = Math.max(...rgb);
         if (maxVal > 0) {
@@ -130,13 +168,13 @@ export function renderPlanet (filePath) {
             rgb[1] /= maxVal; // Normalize Green
             rgb[2] /= maxVal; // Normalize Blue
         }
-    
+
         // Apply gamma correction to simulate human color perception
         const gammaCorrect = (x) => (x <= 0.0031308) ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
-    
+
         return rgb.map(gammaCorrect);
     }
-    
+
 
     var vertexShader = `
     attribute float size;
@@ -195,10 +233,10 @@ export function renderPlanet (filePath) {
         // Create a large sphere to act as a planet
         const planetRadius = 9950;
         const geometry = new THREE.SphereGeometry(planetRadius, 64, 64);
-    
+
         // Load texture image for the planet's surface
         const texture = new THREE.TextureLoader().load('../Textures/Gaseous1.png');
-        
+
         // Use MeshBasicMaterial to ensure no lighting interaction
         const material = new THREE.MeshBasicMaterial({
             map: texture,            // Use the loaded texture
@@ -214,12 +252,13 @@ export function renderPlanet (filePath) {
         const planet = new THREE.Mesh(geometry, material);
         planet.position.set(0, -planetRadius - 50, 0);  // Lower the sphere so camera is on its surface
         planet.name = "floor";  // Keep the name as "floor" for compatibility
+        planet.layers.set(1);
         scene.add(planet);
-    
+
         // Adjust the camera position to simulate standing on the surface of the planet
         camera.position.set(0, 0, 100);  // Place the camera on the surface of the sphere along the Z-axis
-        // camera.lookAt(planet.position);  
-    
+        // camera.lookAt(planet.position);
+
         // Adjust renderer settings to prevent overexposure or bloom
         if (renderer) {
             renderer.toneMapping = THREE.NoToneMapping;  // Disable tone mapping to prevent unintended glow
@@ -228,10 +267,10 @@ export function renderPlanet (filePath) {
             renderer.gammaOutput = true;                 // Ensure gamma correction is applied to final output
         }
     }
-    
-    
-    
-    
+
+
+
+
 
     function drawDynamicConstellations(vertices, maxBranches = 3, maxDepth = 2, distanceThreshold = 470, maxConstellationDistance = 800) {
         var lineMaterial = new THREE.LineBasicMaterial({
@@ -314,7 +353,8 @@ export function renderPlanet (filePath) {
 
     //filePath is the planetName
 
-    fetch("http://exosky-backend.eastus.cloudapp.azure.com:5000/render?index=" + filePath, {
+    // DISABLING TO TRY TEST DATA
+    fetch("/api/render?index=" + filePath, {
         method: 'GET',
         mode: 'cors',  // This allows handling of the response if the server supports it
         headers: {
@@ -329,10 +369,11 @@ export function renderPlanet (filePath) {
             const starsData = JSON.parse(data.stars);
             const keyList = Object.keys(starsData);
 
+
             keyList.forEach(key => {
                 var starData = starsData[key];
                 createStar(starData.ra, starData.dec, starData.sy_bmag, starData.sy_vmag, starData.st_teff, starData.st_mass, starData.st_lum);
-                if (starData.sy_bmag + starData.sy_vmag < 13) {
+                if (starData.sy_bmag + starData.sy_vmag < 20) {
                     const pos = radecToCartesian(starData.ra, starData.dec, 1000);
                     brightStars.push({
                         "name": starData.sy_name,
@@ -345,9 +386,9 @@ export function renderPlanet (filePath) {
                     });
                 }
             });
+            console.log(brightStars);
             starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
             starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(starSizes, 1));
-            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
             stars = new THREE.Points(starGeometry, starMaterial);
             if(stars) {
                 scene.add(stars);
@@ -378,6 +419,18 @@ export function renderPlanet (filePath) {
         total_rotation = (total_rotation + rotationSpeed) % (2 * Math.PI);
     }
 
+    function renderBloomLayer() {
+        // Render only the objects on layer 0 for the bloom effect
+        camera.layers.set(0);
+        composer.render();
+    }
+
+    function renderFinalScene() {
+        // Render all objects, including those on layer 1 (planet)
+        camera.layers.set(1);  // Set to layer 1 to include the planet in the render
+        renderer.clearDepth();  // Clear depth to ensure proper rendering order
+        renderer.render(scene, camera);
+    }
 
     function animate() {
         requestAnimationFrame(animate);
@@ -392,7 +445,9 @@ export function renderPlanet (filePath) {
         scene.getObjectByName("floor").position.x = orbitRadius * Math.cos(Date.now() * orbitSpeed / 1000);
         scene.getObjectByName("floor").position.z = orbitRadius * Math.sin(Date.now() * orbitSpeed / 1000);
 
-        composer.render();
+        renderBloomLayer();
+        renderFinalScene();
+        // composer.render();
     }
 
     let is_rotate_locked = false;
@@ -404,7 +459,7 @@ export function renderPlanet (filePath) {
             is_rotate_locked = true;
             const constMode = document.getElementById("constellation-mode");
             constMode.style.display = "block";
-            constMaker.showStars();            
+            constMaker.showStars();
 
             // event listener for mouse clicks
             window.addEventListener('click', (event) => constMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
@@ -420,7 +475,7 @@ export function renderPlanet (filePath) {
         //Remove ActionEvents
         window.removeEventListener('click', (event) => constMaker.onLeftClick(event, camera, drawLineBetweenStars), false);
         window.removeEventListener('contextmenu', () => constMaker.onRightClick(scene)) // contextmenu <=> right-click
-    
+
         constMaker.resetConstMaker(scene);
         constMaker.hideStars(scene);
 
@@ -483,6 +538,9 @@ export function renderPlanet (filePath) {
     Buttons.showDetailsButton.addEventListener('click', () => {
         stopRotation();
         resetRotation();
+        realisticBloom = true;
+        determinePass(realisticBloom);
+        handleStarColourSwitch(realisticBloom);
         if (!is_rotate_locked) {
             starDetails.showStars();
             is_rotate_locked = true;
@@ -502,6 +560,13 @@ export function renderPlanet (filePath) {
             storyBoard.style.visibility = "hidden";
             story = false;
         }
-    })
-    
+    });
+
+    Buttons.showColourButton.addEventListener('click', () => {
+        // Toggle between the two color sets
+        realisticBloom = !realisticBloom;
+        determinePass(realisticBloom);
+        handleStarColourSwitch(realisticBloom);
+    });
+
 }

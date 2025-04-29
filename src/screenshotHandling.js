@@ -51,7 +51,7 @@ function sendScreenshotToBackend(blob) {
     const formData = new FormData();
     formData.append('file', blob, 'screenshot.png');
 
-    fetch('http://exosky-backend.eastus.cloudapp.azure.com:5000/upload', {
+    fetch('/api/upload', {
         method: 'POST',
         body: formData,
         mode: 'cors',  // Use 'cors' to handle the response
@@ -73,7 +73,7 @@ function sendScreenshotToBackend(blob) {
             console.error('Error uploading image:', error);
         });
 
-    fetch('http://exosky-backend.eastus.cloudapp.azure.com:5000/generate_image?city=toronto&country=canada', {
+    fetch('/api/generate_image_location', {
         method: 'GET',
         mode: 'cors',  // This allows handling of the response if the server supports it
         headers: {

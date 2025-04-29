@@ -4,12 +4,12 @@ import {setupButtons} from "./src/controlRendering.js";
 import {showScreenshotArea} from "./src/screenshotHandling.js";
 
 
-const path = window.location.pathname;
+const url = new URL(window.location.href);  // Get the full URL
 
-const pathSegments = path.split('/');
+const params = new URLSearchParams(url.search);  // Parse query string
 
-const planetName = pathSegments[1];
-
+const planetKey = params.get("key");  // Get the planet key
+console.log(planetKey)
 
 // //fetch planet name
 // fetch ("", {
@@ -33,6 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupButtons();  // Initialize the buttons
     // You can also call the rendering function here
     // renderPlanet("Data\\star_data3.json");
-    renderPlanet(planetName);
+    renderPlanet(planetKey);
     // renderPlanet(1920);
 });
